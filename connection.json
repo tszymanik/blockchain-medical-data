@@ -1,0 +1,67 @@
+{
+  "name": "basic-network",
+  "version": "1.0.0",
+  "client": {
+    "organization": "Org1",
+    "connection": {
+      "timeout": {
+        "peer": {
+          "endorser": "300"
+        },
+        "orderer": "300"
+      }
+    }
+  },
+  "channels": {
+    "mychannel": {
+      "orderers": [
+        "orderer.medicaldata.com"
+      ],
+      "peers": {
+        "peer0.org1.medicaldata.com": {}
+      }
+    }
+  },
+  "organizations": {
+    "Org1": {
+      "mspid": "Org1MSP",
+      "peers": [
+        "peer0.org1.medicaldata.com"
+      ],
+      "certificateAuthorities": [
+        "ca.medicaldata.com"
+      ]
+    }
+  },
+  "orderers": {
+    "orderer.medicaldata.com": {
+      "url": "grpc://localhost:7050",
+      "tlsCACerts": {
+        "path": "../crypto-config/peerOrganizations/org1.medicaldata.com/tlsca/tlsca.org1.medicaldata.com-cert.pem"
+      }
+    }
+  },
+  "peers": {
+    "peer0.org1.medicaldata.com": {
+      "url": "grpc://localhost:7051",
+      "tlsCACerts": {
+        "path": "../crypto-config/peerOrganizations/org1.medicaldata.com/tlsca/tlsca.org1.medicaldata.com-cert.pem"
+      },
+      "grpcOptions": {
+        "ssl-target-name-override": "peer0.org1.medicaldata.com"
+      }
+    }
+  },
+  "certificateAuthorities": {
+    "ca.medicaldata.com": {
+      "url": "http://localhost:7054",
+      "caName": "ca.medicaldata.com",
+      "tlsCACerts": {
+        "path": "../crypto-config/peerOrganizations/org1.medicaldata.com/tlsca/tlsca.org1.medicaldata.com-cert.pem"
+      },
+      "httpOptions": {
+        "verify": false
+      }
+    }
+  }
+}
