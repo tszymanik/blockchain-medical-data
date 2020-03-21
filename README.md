@@ -1,4 +1,4 @@
-# Wykorzystanie technologii Blockchain to przechowywania danych medycznych
+# Wykorzystanie technologii Blockchain do przechowywania danych medycznych
 Tomasz Szymanik
 
 # Network
