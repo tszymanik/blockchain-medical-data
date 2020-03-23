@@ -10,7 +10,7 @@ export class DoctorContract extends Contract {
     const doctors: Doctor[] = [
       new Doctor(
         "jan.kowalski@email.com",
-        "696936374",
+        "000000000",
         "Jan",
         "Kowalski",
         94021106010,
@@ -20,7 +20,7 @@ export class DoctorContract extends Contract {
       ),
       new Doctor(
         "jan.kowalski@email.com",
-        "696936374",
+        "000000000",
         "Jan",
         "Kowalski",
         94021106010,

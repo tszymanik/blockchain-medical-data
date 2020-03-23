@@ -122,7 +122,7 @@ node dist/query.js user1 org1.medicaldata.patient getPatients
 node dist/query.js user1 org1.medicaldata.patient getPatient PATIENT_0
 ```
 ```shell
-node dist/invoke.js user1 org1.medicaldata.patient addPatient PATIENT_2 jan.kowalski@email.com 696936374 Jan Kowalski 94021106010 1994-03-11T00:00:00.000Z M Kraków 'Łojasiewicza 11' Kraków 30-348 małopolskie
+node dist/invoke.js user1 org1.medicaldata.patient addPatient PATIENT_2 jan.kowalski@email.com 000000000 Jan Kowalski 94021106010 1994-03-11T00:00:00.000Z M Kraków 'Łojasiewicza 11' Kraków 30-348 małopolskie
 ```
 
 ## Use the Doctor contract
@@ -133,7 +133,7 @@ node dist/query.js user1 org1.medicaldata.doctor getDoctors
 node dist/query.js user1 org1.medicaldata.doctor getDoctor DOCTOR_0
 ```
 ```shell
-node dist/invoke.js user1 org1.medicaldata.patient addDoctor DOCTOR_1 jan.kowalski@email.com 696936374 Jan Kowalski 94021106010 1994-03-11T00:00:00.000Z M HOSPITAL_0
+node dist/invoke.js user1 org1.medicaldata.patient addDoctor DOCTOR_1 jan.kowalski@email.com 000000000 Jan Kowalski 94021106010 1994-03-11T00:00:00.000Z M HOSPITAL_0
 ```
 ```shell
 node dist/invoke.js user1 org1.medicaldata.patient transferDoctor DOCTOR_1 HOSPITAL_1
