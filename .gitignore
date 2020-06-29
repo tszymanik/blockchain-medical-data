@@ -4,4 +4,7 @@ crypto-config/
 organizations/peerOrganizations/org1.medicaldata.com/*
 organizations/peerOrganizations/org2.medicaldata.com/*
 
+!organizations/peerOrganizations/org1.medicaldata.com/.gitkeep
+!organizations/peerOrganizations/org2.medicaldata.com/.gitkeep
+
 wallet/
