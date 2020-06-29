@@ -4,8 +4,8 @@ networks:
   basic:
 
 services:
-  ubuntu:
-    container_name: ubuntu
+  dev:
+    container_name: dev
     build: .
     tty: true
     volumes:
@@ -14,108 +14,205 @@ services:
       - basic
     working_dir: /src
 
-  ca.medicaldata.com:
-    image: hyperledger/fabric-ca:1.4.6
+  ca.org1.medicaldata.com:
+    container_name: ca.org1.medicaldata.com
+    image: hyperledger/fabric-ca:1.4.7
     environment:
       - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
-      - FABRIC_CA_SERVER_CA_NAME=ca.medicaldata.com
+      - FABRIC_CA_SERVER_CA_NAME=ca-org1
       - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.org1.medicaldata.com-cert.pem
       - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/ca.org1.medicaldata.com_sk
-    ports:
-      - "7054:7054"
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.org1.medicaldata.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/ca.org1.medicaldata.com_sk
     command: sh -c 'fabric-ca-server start -b admin:adminpw'
     volumes:
       - ./crypto-config/peerOrganizations/org1.medicaldata.com/ca/:/etc/hyperledger/fabric-ca-server-config
-    container_name: ca.medicaldata.com
+    ports:
+      - "7054:7054"
+    networks:
+      - basic
+
+  ca.org2.medicaldata.com:
+    container_name: ca.org2.medicaldata.com
+    image: hyperledger/fabric-ca:1.4.7
+    environment:
+      - FABRIC_CA_HOME=/etc/hyperledger/fabric-ca-server
+       - FABRIC_CA_SERVER_CA_NAME=ca-org2
+      - FABRIC_CA_SERVER_CA_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.org2.medicaldata.com-cert.pem
+      - FABRIC_CA_SERVER_CA_KEYFILE=/etc/hyperledger/fabric-ca-server-config/ca.org2.medicaldata.com_sk
+      - FABRIC_CA_SERVER_TLS_ENABLED=true
+      - FABRIC_CA_SERVER_TLS_CERTFILE=/etc/hyperledger/fabric-ca-server-config/ca.org2.medicaldata.com-cert.pem
+      - FABRIC_CA_SERVER_TLS_KEYFILE=/etc/hyperledger/fabric-ca-server-config/ca.org2.medicaldata.com_sk
+      - FABRIC_CA_SERVER_PORT=9054
+    command: sh -c 'fabric-ca-server start -b admin:adminpw'
+    volumes:
+      - ./crypto-config/peerOrganizations/org2.medicaldata.com/ca/:/etc/hyperledger/fabric-ca-server-config
+    ports:
+      - "9054:9054"
     networks:
       - basic
 
   orderer.medicaldata.com:
     container_name: orderer.medicaldata.com
-    image: hyperledger/fabric-orderer:2.0.1
+    image: hyperledger/fabric-orderer:2.1.1
     tty: true
     environment:
-      - FABRIC_LOGGING_SPEC=info
+      - FABRIC_LOGGING_SPEC=INFO
       - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0
-      - ORDERER_GENERAL_GENESISMETHOD=file
-      - ORDERER_GENERAL_GENESISFILE=/etc/hyperledger/configtx/genesis.block
+      - ORDERER_GENERAL_BOOTSTRAPMETHOD=file
+      - ORDERER_GENERAL_BOOTSTRAPFILE=/etc/hyperledger/configtx/genesis.block
       - ORDERER_GENERAL_LOCALMSPID=OrdererMSP
-      - ORDERER_GENERAL_LOCALMSPDIR=/etc/hyperledger/msp/orderer/msp
-    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/orderer
+      - ORDERER_GENERAL_LOCALMSPDIR=/var/hyperledger/orderer/msp
+      - ORDERER_GENERAL_TLS_ENABLED=true
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
+      - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/var/hyperledger/orderer/tls/server.crt
+      - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/var/hyperledger/orderer/tls/server.key
+      - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/var/hyperledger/orderer/tls/ca.crt]
     command: orderer
-    ports:
-      - 7050:7050
     volumes:
       - ./config/:/etc/hyperledger/configtx
-      - ./crypto-config/ordererOrganizations/medicaldata.com/orderers/orderer.medicaldata.com/:/etc/hyperledger/msp/orderer
-      - ./crypto-config/peerOrganizations/org1.medicaldata.com/peers/peer0.org1.medicaldata.com/:/etc/hyperledger/msp/peerOrg1
+      - ./crypto-config/ordererOrganizations/medicaldata.com/orderers/orderer.medicaldata.com/msp:/var/hyperledger/orderer/msp
+      - ./crypto-config/ordererOrganizations/medicaldata.com/orderers/orderer.medicaldata.com/tls/:/var/hyperledger/orderer/tls
+    ports:
+      - 7050:7050
     networks:
       - basic
 
   peer0.org1.medicaldata.com:
     container_name: peer0.org1.medicaldata.com
+    image: hyperledger/fabric-peer:2.1.1
+    tty: true
+    environment:
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=${COMPOSE_PROJECT_NAME}_basic
+      - FABRIC_LOGGING_SPEC=INFO
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_GOSSIP_USELEADERELECTION=false
+      - CORE_PEER_GOSSIP_ORGLEADER=true
+      - CORE_PEER_PROFILE_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      - CORE_PEER_ID=peer0.org1.medicaldata.com
+      - CORE_PEER_ADDRESS=peer0.org1.medicaldata.com:7051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.org1.medicaldata.com:7052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org1.medicaldata.com:7051
+      - CORE_PEER_LOCALMSPID=Org1MSP
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
+    volumes:
+      - /var/run/:/host/var/run/
+      - ./crypto-config/peerOrganizations/org1.medicaldata.com/peers/peer0.org1.medicaldata.com/msp:/etc/hyperledger/fabric/msp
+      - ./crypto-config/peerOrganizations/org1.medicaldata.com/peers/peer0.org1.medicaldata.com/tls:/etc/hyperledger/fabric/tls
+      - ./crypto-config/peerOrganizations/org1.medicaldata.com/users:/etc/hyperledger/msp/users
+      - ./crypto-config/ordererOrganizations/medicaldata.com/orderers/orderer.medicaldata.com/tls/ca.crt/:/etc/hyperledger/fabric/orderer/orderer-ca.crt
+      - ./config:/etc/hyperledger/configtx
+    ports:
+      - 7051:7051
+    networks:
+      - basic
+
+  peer0.org2.medicaldata.com:
+    container_name: peer0.org2.medicaldata.com
     image: hyperledger/fabric-peer:2.0.1
     tty: true
     environment:
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
-      - CORE_PEER_ID=peer0.org1.medicaldata.com
-      - FABRIC_LOGGING_SPEC=info
-      - CORE_CHAINCODE_LOGGING_LEVEL=info
-      - CORE_PEER_LOCALMSPID=Org1MSP
-      - CORE_PEER_MSPCONFIGPATH=/etc/hyperledger/msp/peer/
-      - CORE_PEER_ADDRESS=peer0.org1.medicaldata.com:7051
-      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org1.medicaldata.com:7051
       - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=${COMPOSE_PROJECT_NAME}_basic
-      - CORE_LEDGER_STATE_STATEDATABASE=CouchDB
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_COUCHDBADDRESS=couchdb:5984
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_USERNAME=
-      - CORE_LEDGER_STATE_COUCHDBCONFIG_PASSWORD=
-    working_dir: /opt/gopath/src/github.com/hyperledger/fabric
-    command: peer node start --peer-chaincodedev=true
-    ports:
-      - 7051:7051
-      - 7053:7053
+      - FABRIC_LOGGING_SPEC=INFO
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_GOSSIP_USELEADERELECTION=false
+      - CORE_PEER_GOSSIP_ORGLEADER=true
+      - CORE_PEER_PROFILE_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/etc/hyperledger/fabric/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/etc/hyperledger/fabric/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/etc/hyperledger/fabric/tls/ca.crt
+      - CORE_PEER_ID=peer0.org2.medicaldata.com
+      - CORE_PEER_ADDRESS=peer0.org2.medicaldata.com:9051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:9051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.org2.medicaldata.com:9052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:9052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.org2.medicaldata.com:9051
+      - CORE_PEER_LOCALMSPID=Org2MSP
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: peer node start
     volumes:
       - /var/run/:/host/var/run/
-      - ./crypto-config/peerOrganizations/org1.medicaldata.com/peers/peer0.org1.medicaldata.com/msp:/etc/hyperledger/msp/peer
-      - ./crypto-config/peerOrganizations/org1.medicaldata.com/users:/etc/hyperledger/msp/users
+      - ./crypto-config/peerOrganizations/org2.medicaldata.com/peers/peer0.org2.medicaldata.com/msp:/etc/hyperledger/fabric/msp
+      - ./crypto-config/peerOrganizations/org2.medicaldata.com/peers/peer0.org2.medicaldata.com/tls:/etc/hyperledger/fabric/tls
+      - ./crypto-config/peerOrganizations/org2.medicaldata.com/users:/etc/hyperledger/msp/users
+      - ./crypto-config/ordererOrganizations/medicaldata.com/orderers/orderer.medicaldata.com/tls/ca.crt/:/etc/hyperledger/fabric/orderer/orderer-ca.crt
       - ./config:/etc/hyperledger/configtx
-    depends_on:
-      - orderer.medicaldata.com
-      - couchdb
-    networks:
-      - basic
-
-  couchdb:
-    container_name: couchdb
-    image: couchdb:2.3
-    tty: true
-    environment:
-      - COUCHDB_USER=
-      - COUCHDB_PASSWORD=
     ports:
-      - 5984:5984
+      - 9051:9051
     networks:
       - basic
 
-  cli:
-    container_name: cli
-    image: hyperledger/fabric-tools:2.0.1
+  cliOrg1:
+    container_name: cliOrg1
+    image: hyperledger/fabric-tools:2.1.1
     tty: true
+    stdin_open: true
     environment:
       - GOPATH=/opt/gopath
       - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
-      - FABRIC_LOGGING_SPEC=info
+      - FABRIC_LOGGING_SPEC=INFO
       - CORE_PEER_ID=cli
       - CORE_PEER_ADDRESS=peer0.org1.medicaldata.com:7051
       - CORE_PEER_LOCALMSPID=Org1MSP
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.medicaldata.com/peers/peer0.org1.medicaldata.com/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.medicaldata.com/peers/peer0.org1.medicaldata.com/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.medicaldata.com/peers/peer0.org1.medicaldata.com/tls/ca.crt
       - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.medicaldata.com/users/Admin@org1.medicaldata.com/msp
-      - CORE_CHAINCODE_KEEPALIVE=10
+      - ORDERER_CA=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/medicaldata.com/orderers/orderer.medicaldata.com/tls/ca.crt
     working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
     command: /bin/bash
     volumes:
       - /var/run/:/host/var/run/
       - ./chaincode/:/opt/gopath/src/github.com/chaincode
       - ./crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
+      - ./config:/etc/hyperledger/configtx
+    depends_on:
+      - orderer.medicaldata.com
+      - peer0.org1.medicaldata.com
+      - peer0.org2.medicaldata.com
+    networks:
+      - basic
+
+  cliOrg2:
+    container_name: cliOrg2
+    image: hyperledger/fabric-tools:2.1.1
+    tty: true
+    stdin_open: true
+    environment:
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - FABRIC_LOGGING_SPEC=INFO
+      - CORE_PEER_ID=cli
+      - CORE_PEER_ADDRESS=peer0.org2.medicaldata.com:9051
+      - CORE_PEER_LOCALMSPID=Org2MSP
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.medicaldata.com/peers/peer0.org2.medicaldata.com/tls/server.crt
+      - CORE_PEER_TLS_KEY_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.medicaldata.com/peers/peer0.org2.medicaldata.com/tls/server.key
+      - CORE_PEER_TLS_ROOTCERT_FILE=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.medicaldata.com/peers/peer0.org2.medicaldata.com/tls/ca.crt
+      - CORE_PEER_MSPCONFIGPATH=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.medicaldata.com/users/Admin@org2.medicaldata.com/msp
+      - ORDERER_CA=/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/medicaldata.com/orderers/orderer.medicaldata.com/tls/ca.crt
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/peer
+    command: /bin/bash
+    volumes:
+      - /var/run/:/host/var/run/
+      - ./chaincode/:/opt/gopath/src/github.com/chaincode
+      - ./crypto-config:/opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/
+      - ./config:/etc/hyperledger/configtx
+    depends_on:
+      - orderer.medicaldata.com
+      - peer0.org1.medicaldata.com
+      - peer0.org2.medicaldata.com
     networks:
       - basic

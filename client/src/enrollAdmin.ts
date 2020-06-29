@@ -3,21 +3,29 @@ import { Wallets, X509Identity } from 'fabric-network';
 import fs from 'fs';
 import path from 'path';
 
+const organizationName = process.argv[2];
+
 const main = async () => {
   try {
     const networkConfigurationPath = path.resolve(
       __dirname,
       '..',
       '..',
-      'connection.json'
+      'organizations',
+      'peerOrganizations',
+      `${organizationName}.medicaldata.com`,
+      `connection-${organizationName}.json`
     );
     const networkConfiguration = JSON.parse(
       fs.readFileSync(networkConfigurationPath, 'utf8')
     );
 
     const caInfo =
-      networkConfiguration.certificateAuthorities['ca.medicaldata.com'];
+      networkConfiguration.certificateAuthorities[
+        `ca.${organizationName}.medicaldata.com`
+      ];
     const caTlsCACerts = caInfo.tlsCACerts.pem;
+
     const ca = new FabricCAServices(
       caInfo.url,
       { trustedRoots: caTlsCACerts, verify: false },
@@ -45,7 +53,7 @@ const main = async () => {
         certificate: enrollment.certificate,
         privateKey: enrollment.key.toBytes(),
       },
-      mspId: 'Org1MSP',
+      mspId: `${organizationName.charAt(0).toUpperCase() + organizationName.slice(1)}MSP`,
       type: 'X.509',
     };
     await wallet.put('admin', x509Identity);

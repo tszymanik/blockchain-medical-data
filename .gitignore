@@ -1,5 +1,7 @@
 bin/
 config/
 crypto-config/
+organizations/peerOrganizations/org1.medicaldata.com/*
+organizations/peerOrganizations/org2.medicaldata.com/*
 
-fabcar/wallet/
+wallet/

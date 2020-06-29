@@ -3,7 +3,8 @@ import { Wallets, X509Identity } from 'fabric-network';
 import fs from 'fs';
 import path from 'path';
 
-const user = process.argv[2];
+const organizationName = process.argv[2];
+const user = process.argv[3];
 
 const main = async () => {
   try {
@@ -11,14 +12,17 @@ const main = async () => {
       __dirname,
       '..',
       '..',
-      'connection.json'
+      'organizations',
+      'peerOrganizations',
+      `${organizationName}.medicaldata.com`,
+      `connection-${organizationName}.json`
     );
     const networkConfiguration = JSON.parse(
       fs.readFileSync(networkConfigurationPath, 'utf8')
     );
 
     const caURL =
-      networkConfiguration.certificateAuthorities['ca.medicaldata.com'].url;
+      networkConfiguration.certificateAuthorities[`ca.${organizationName}.medicaldata.com`].url;
     const ca = new FabricCAServices(caURL);
 
     const walletPath = path.join(process.cwd(), 'wallet');
@@ -49,7 +53,7 @@ const main = async () => {
 
     const secret = await ca.register(
       {
-        affiliation: 'org1.department1',
+        affiliation: `${organizationName}.department1`,
         enrollmentID: user,
         role: 'client',
       },
@@ -66,7 +70,7 @@ const main = async () => {
         certificate: enrollment.certificate,
         privateKey: enrollment.key.toBytes(),
       },
-      mspId: 'Org1MSP',
+      mspId: `${organizationName.charAt(0).toUpperCase() + organizationName.slice(1)}MSP`,
       type: 'X.509',
     };
 

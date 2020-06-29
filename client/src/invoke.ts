@@ -2,9 +2,10 @@ import { Gateway, Wallets } from 'fabric-network';
 import fs from 'fs';
 import path from 'path';
 
-const userName = process.argv[2];
-const contractName = process.argv[3];
-const transactionName = process.argv[4];
+const organizationName = process.argv[2];
+const userName = process.argv[3];
+const contractName = process.argv[4];
+const transactionName = process.argv[5];
 
 const main = async () => {
   try {
@@ -12,7 +13,10 @@ const main = async () => {
       __dirname,
       '..',
       '..',
-      'connection.json'
+      'organizations',
+      'peerOrganizations',
+      `${organizationName}.medicaldata.com`,
+      `connection-${organizationName}.json`
     );
     const networkConfiguration = JSON.parse(
       fs.readFileSync(networkConfigurationPath, 'utf8')
@@ -34,7 +38,7 @@ const main = async () => {
     await gateway.connect(networkConfiguration, {
       wallet,
       identity: userName,
-      discovery: { enabled: true, asLocalhost: true },
+      discovery: { enabled: true, asLocalhost: false },
     });
 
     const network = await gateway.getNetwork('mychannel');
