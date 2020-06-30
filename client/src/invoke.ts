@@ -47,7 +47,7 @@ const main = async () => {
     const transactionArguments: string[] = [];
 
     process.argv.forEach((arg, index) => {
-      if (index > 4) {
+      if (index > 5) {
         transactionArguments.push(arg);
       }
     });
