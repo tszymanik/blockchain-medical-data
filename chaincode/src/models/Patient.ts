@@ -55,11 +55,35 @@ export class Patient implements IPatient {
     this.voivodeship = voivodeship;
   }
 
+  getData() {
+    return JSON.stringify({
+      email: this.email,
+      phoneNumer: this.phoneNumer,
+      firstName: this.firstName,
+      lastName: this.lastName,
+      personalIdentificationNumber: this.personalIdentificationNumber,
+      dateOfBirth: this.dateOfBirth,
+      gender: this.gender,
+      placeOfBirth: this.placeOfBirth,
+      address: this.address,
+      city: this.city,
+      zipCode: this.zipCode,
+      voivodeship: this.voivodeship,
+    });
+  }
+
+  getAnonymizedData() {
+    return JSON.stringify({
+      dateOfBirth: this.dateOfBirth,
+      gender: this.gender,
+    });
+  }
+
   toString() {
     return JSON.stringify(this);
   }
 
-  toBuffer() {
-    return Buffer.from(this.toString());
+  toBuffer(data: any) {
+    return Buffer.from(data);
   }
 }

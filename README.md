@@ -59,10 +59,10 @@ docker exec -it cliOrg1 peer lifecycle chaincode install medicaldata.tar.gz
 docker exec -it cliOrg1 peer lifecycle chaincode queryinstalled
 ```
 ```shell
-docker exec -it cliOrg1 peer lifecycle chaincode approveformyorg --channelID mychannel --name medicaldata --version 1 --sequence 1 --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/medicaldata.com/orderers/orderer.medicaldata.com/tls/ca.crt --package-id <org1-package-id>
+docker exec -it cliOrg1 peer lifecycle chaincode approveformyorg --channelID mychannel --name medicaldata --version 1 --sequence 1 --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/medicaldata.com/orderers/orderer.medicaldata.com/tls/ca.crt --collections-config /opt/gopath/src/github.com/chaincode/collections_config.json --package-id <org1-package-id>
 ```
 ```shell
-docker exec -it cliOrg1 peer lifecycle chaincode checkcommitreadiness -C mychannel -n medicaldata -v 1
+docker exec -it cliOrg1 peer lifecycle chaincode checkcommitreadiness -C mychannel -n medicaldata -v 1 --collections-config /opt/gopath/src/github.com/chaincode/collections_config.json
 ```
 ```shell
 docker exec -it cliOrg2 peer lifecycle chaincode package medicaldata.tar.gz --path /opt/gopath/src/github.com/chaincode --lang node --label medicaldata
@@ -74,13 +74,13 @@ docker exec -it cliOrg2 peer lifecycle chaincode install medicaldata.tar.gz
 docker exec -it cliOrg2 peer lifecycle chaincode queryinstalled
 ```
 ```shell
-docker exec -it cliOrg2 peer lifecycle chaincode approveformyorg --channelID mychannel --name medicaldata --version 1 --sequence 1 --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/medicaldata.com/orderers/orderer.medicaldata.com/tls/ca.crt --package-id <org2-package-id>
+docker exec -it cliOrg2 peer lifecycle chaincode approveformyorg --channelID mychannel --name medicaldata --version 1 --sequence 1 --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/medicaldata.com/orderers/orderer.medicaldata.com/tls/ca.crt --collections-config /opt/gopath/src/github.com/chaincode/collections_config.json --package-id <org2-package-id>
 ```
 ```shell
-docker exec -it cliOrg2 peer lifecycle chaincode checkcommitreadiness -C mychannel -n medicaldata -v 1
+docker exec -it cliOrg2 peer lifecycle chaincode checkcommitreadiness -C mychannel -n medicaldata -v 1 --collections-config /opt/gopath/src/github.com/chaincode/collections_config.json
 ```
 ```shell
-docker exec -it cliOrg1 peer lifecycle chaincode commit -C mychannel -n medicaldata -v 1 --sequence 1 --tls -o orderer.medicaldata.com:7050 --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/medicaldata.com/orderers/orderer.medicaldata.com/tls/ca.crt --peerAddresses peer0.org1.medicaldata.com:7051 --peerAddresses peer0.org2.medicaldata.com:9051 --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.medicaldata.com/peers/peer0.org1.medicaldata.com/tls/ca.crt --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.medicaldata.com/peers/peer0.org2.medicaldata.com/tls/ca.crt
+docker exec -it cliOrg1 peer lifecycle chaincode commit -C mychannel -n medicaldata -v 1 --sequence 1 --tls -o orderer.medicaldata.com:7050 --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/medicaldata.com/orderers/orderer.medicaldata.com/tls/ca.crt --peerAddresses peer0.org1.medicaldata.com:7051 --peerAddresses peer0.org2.medicaldata.com:9051 --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.medicaldata.com/peers/peer0.org1.medicaldata.com/tls/ca.crt --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.medicaldata.com/peers/peer0.org2.medicaldata.com/tls/ca.crt --collections-config /opt/gopath/src/github.com/chaincode/collections_config.json
 ```
 ```shell
 docker exec -it cliOrg1 peer lifecycle chaincode querycommitted -C mychannel
@@ -124,7 +124,7 @@ docker exec -it dev bash -c "node client/dist/invoke.js org1 user1 medicaldata.r
 
 ## Query example
 ```shell
-docker exec -it dev bash -c "node client/dist/query.js <organization-name> <user-name> <contract-name> <transaction-name>"
+docker exec -it dev bash -c "node client/dist/query.js <organization-name> <user-name> <contract-name> <transaction-name> <transaction-argument>"
 ```
 
 ## Invoke example
@@ -134,7 +134,7 @@ docker exec -it dev bash -c "node client/dist/invoke.js <organization-name> <use
 
 ## Use the Hospital contract
 ```shell
-docker exec -it dev bash -c "node client/dist/query.js org1 user1 medicaldata.hospital getHospitals"
+docker exec -it dev bash -c "node client/dist/query.js org1 user1 medicaldata.hospital getHospitals HOSPITAL_0 HOSPITAL_999"
 ```
 ```shell
 docker exec -it dev bash -c "node client/dist/query.js org1 user1 medicaldata.hospital getHospital HOSPITAL_0"
@@ -145,10 +145,16 @@ docker exec -it dev bash -c "node client/dist/invoke.js org1 user1 medicaldata.h
 
 ## Use the Patient contract
 ```shell
-docker exec -it dev bash -c "node client/dist/query.js org1 user1 medicaldata.patient getPatients"
+docker exec -it dev bash -c "node client/dist/query.js org1 user1 medicaldata.patient getPatients PATIENT_0 PATIENT_999"
+```
+```shell
+docker exec -it dev bash -c "node client/dist/query.js org1 user1 medicaldata.patient getAnonymizedPatients PATIENT_0 PATIENT_999"
 ```
 ```shell
 docker exec -it dev bash -c "node client/dist/query.js org1 user1 medicaldata.patient getPatient PATIENT_0"
+```
+```shell
+docker exec -it dev bash -c "node client/dist/query.js org1 user1 medicaldata.patient getAnonymizedPatient PATIENT_0"
 ```
 ```shell
 docker exec -it dev bash -c "node client/dist/invoke.js org1 user1 medicaldata.patient addPatient PATIENT_2 jan.kowalski@email.com 000000000 Jan Kowalski 94021106010 1994-03-11T00:00:00.000Z M Kraków 'Łojasiewicza 11' Kraków 30-348 małopolskie"
@@ -156,7 +162,7 @@ docker exec -it dev bash -c "node client/dist/invoke.js org1 user1 medicaldata.p
 
 ## Use the Doctor contract
 ```shell
-docker exec -it dev bash -c "node client/dist/query.js org1 user1 medicaldata.doctor getDoctors"
+docker exec -it dev bash -c "node client/dist/query.js org1 user1 medicaldata.doctor getDoctors DOCTOR_0 DOCTOR_999"
 ```
 ```shell
 docker exec -it dev bash -c "node client/dist/query.js org1 user1 medicaldata.doctor getDoctor DOCTOR_0"
@@ -170,7 +176,7 @@ docker exec -it dev bash -c "node client/dist/invoke.js org1 user1 medicaldata.d
 
 ## Use the Report contract
 ```shell
-docker exec -it dev bash -c "node client/dist/query.js org1 user1 medicaldata.report getReports"
+docker exec -it dev bash -c "node client/dist/query.js org1 user1 medicaldata.report getReports REPORT_0 REPORT_999"
 ```
 ```shell
 docker exec -it dev bash -c "node client/dist/query.js org1 user1 medicaldata.report getReport REPORT_0"

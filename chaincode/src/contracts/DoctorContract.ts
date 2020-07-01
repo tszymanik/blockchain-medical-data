@@ -48,9 +48,7 @@ export class DoctorContract extends Contract {
     return doctorBytes.toString();
   }
 
-  async getDoctors(context: Context) {
-    const startKey = "DOCTOR_0";
-    const endKey = "DOCTOR_999";
+  async getDoctors(context: Context, startKey: string, endKey: string) {
     const doctors = [];
 
     for await (const state of context.stub.getStateByRange(startKey, endKey)) {

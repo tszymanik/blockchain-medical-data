@@ -6,7 +6,6 @@ const organizationName = process.argv[2];
 const userName = process.argv[3];
 const contractName = process.argv[4];
 const transactionName = process.argv[5];
-const transactionArgument = process.argv[6];
 
 const main = async () => {
   try {
@@ -44,11 +43,19 @@ const main = async () => {
 
     const network = await gateway.getNetwork('mychannel');
     const contract = network.getContract('medicaldata', contractName);
+
+    const transactionArguments: string[] = [];
+
+    process.argv.forEach((arg, index) => {
+      if (index > 5) {
+        transactionArguments.push(arg);
+      }
+    });
     
     let result;
 
-    if (transactionArgument) {
-      result = await contract.evaluateTransaction(transactionName, transactionArgument);
+    if (transactionArguments) {
+      result = await contract.evaluateTransaction(transactionName, ...transactionArguments);
     } else {
       result = await contract.evaluateTransaction(transactionName);
     }

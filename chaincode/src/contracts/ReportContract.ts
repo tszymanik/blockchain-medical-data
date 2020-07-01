@@ -34,9 +34,7 @@ export class ReportContract extends Contract {
     return hospitalBytes.toString();
   }
 
-  async getReports(context: Context) {
-    const startKey = 'REPORT_0';
-    const endKey = 'REPORT_999';
+  async getReports(context: Context, startKey: string, endKey: string) {
     const reports = [];
 
     for await (const state of context.stub.getStateByRange(startKey, endKey)) {

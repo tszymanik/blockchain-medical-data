@@ -1,6 +1,9 @@
 import { Context, Contract } from 'fabric-contract-api';
 import { IPatient, Patient } from '../models/Patient';
 
+const DATA = 'DATA';
+const ANONYMIZED_DATA = 'ANONYMIZED_DATA';
+
 export class PatientContract extends Contract {
   constructor() {
     super('medicaldata.patient');
@@ -39,19 +42,51 @@ export class PatientContract extends Contract {
     ];
 
     await Promise.all(
-      patients.map(
-        async (patient, index) =>
-          await context.stub.putState(`PATIENT_${index}`, patient.toBuffer()),
-      ),
+      patients.map(async (patient, index) => {
+        await context.stub.putPrivateData(
+          DATA,
+          `PATIENT_${index}`,
+          patient.toBuffer(patient.getData()),
+        );
+
+        await context.stub.putPrivateData(
+          ANONYMIZED_DATA,
+          `PATIENT_${index}`,
+          patient.toBuffer(patient.getAnonymizedData()),
+        );
+      }),
     );
   }
 
-  async getPatients(context: Context) {
-    const startKey = 'PATIENT_0';
-    const endKey = 'PATIENT_999';
+  async getPatients(
+    context: Context,
+    startKey: string,
+    endKey: string,
+  ) {
     const patients = [];
 
-    for await (const state of context.stub.getStateByRange(startKey, endKey)) {
+    for await (const state of context.stub.getPrivateDataByRange(
+      DATA,
+      startKey,
+      endKey,
+    )) {
+      const value = Buffer.from(state.value).toString('utf8');
+      const record: IPatient = JSON.parse(value);
+
+      patients.push({ Key: state.key, Record: record });
+    }
+
+    return JSON.stringify(patients);
+  }
+
+  async getAnonymizedPatients(context: Context, startKey: string, endKey: string) {
+    const patients = [];
+
+    for await (const state of context.stub.getPrivateDataByRange(
+      ANONYMIZED_DATA,
+      startKey,
+      endKey,
+    )) {
       const value = Buffer.from(state.value).toString('utf8');
       const record: IPatient = JSON.parse(value);
 
@@ -62,7 +97,20 @@ export class PatientContract extends Contract {
   }
 
   async getPatient(context: Context, key: string) {
-    const patientBytes = await context.stub.getState(key);
+    const patientBytes = await context.stub.getPrivateData(DATA, key);
+
+    if (!patientBytes) {
+      throw new Error(`${key} doesn't exist.`);
+    }
+
+    return patientBytes.toString();
+  }
+
+  async getAnonymizedPatient(context: Context, key: string) {
+    const patientBytes = await context.stub.getPrivateData(
+      ANONYMIZED_DATA,
+      key,
+    );
 
     if (!patientBytes) {
       throw new Error(`${key} doesn't exist.`);
@@ -87,22 +135,31 @@ export class PatientContract extends Contract {
     zipCode: string,
     voivodeship: string,
   ) {
-    await context.stub.putState(
-      key,
-      new Patient(
-        email,
-        phoneNumer,
-        firstName,
-        lastName,
-        Number.parseInt(personalIdentificationNumber),
-        new Date(dateOfBirth),
-        gender,
-        placeOfBirth,
-        address,
-        city,
-        zipCode,
-        voivodeship,
-      ).toBuffer(),
+    const patient = new Patient(
+      email,
+      phoneNumer,
+      firstName,
+      lastName,
+      Number.parseInt(personalIdentificationNumber),
+      new Date(dateOfBirth),
+      gender,
+      placeOfBirth,
+      address,
+      city,
+      zipCode,
+      voivodeship,
+    );
+
+    await context.stub.putPrivateData(
+      DATA,
+      `PATIENT_${key}`,
+      patient.toBuffer(patient.getData()),
+    );
+
+    await context.stub.putPrivateData(
+      ANONYMIZED_DATA,
+      `PATIENT_${key}`,
+      patient.toBuffer(patient.getAnonymizedData()),
     );
   }
 }
