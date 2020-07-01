@@ -1,9 +1,9 @@
 # Wykorzystanie technologii Blockchain do przechowywania danych medycznych
 Tomasz Szymanik
 
-# Organizations:
-## Org1 - insurer
-## Org2 - university (anonymized data)
+## Organizations
+Org1 - insurer
+Org2 - university (anonymized data)
 
 # Network
 
