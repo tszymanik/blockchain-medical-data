@@ -2,8 +2,8 @@
 Tomasz Szymanik
 
 ## Organizations
-Org1 - insurer
-Org2 - university (anonymized data)
+1. Org1 - insurer
+2. Org2 - university (anonymized data)
 
 # Network
 
