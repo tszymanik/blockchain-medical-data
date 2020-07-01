@@ -22,7 +22,7 @@ const main = async () => {
       fs.readFileSync(networkConfigurationPath, 'utf8')
     );
 
-    const walletPath = path.join(process.cwd(), 'wallet');
+    const walletPath = path.join(process.cwd(), 'wallet', organizationName);
     const wallet = await Wallets.newFileSystemWallet(walletPath);
     console.log(`Wallet path: ${walletPath}`);
 

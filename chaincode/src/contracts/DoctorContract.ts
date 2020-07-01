@@ -3,7 +3,7 @@ import { IDoctor, Doctor } from "../models/Doctor";
 
 export class DoctorContract extends Contract {
   constructor() {
-    super("org1.medicaldata.doctor");
+    super("medicaldata.doctor");
   }
 
   async initLedger(context: Context) {

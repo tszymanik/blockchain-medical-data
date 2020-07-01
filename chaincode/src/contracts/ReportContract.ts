@@ -3,7 +3,7 @@ import { IReport, Report } from '../models/Report';
 
 export class ReportContract extends Contract {
   constructor() {
-    super('org1.medicaldata.report');
+    super('medicaldata.report');
   }
 
   async initLedger(context: Context) {

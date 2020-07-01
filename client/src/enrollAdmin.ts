@@ -32,7 +32,7 @@ const main = async () => {
       caInfo.caName
     );
 
-    const walletPath = path.join(process.cwd(), 'wallet');
+    const walletPath = path.join(process.cwd(), 'wallet', organizationName);
     const wallet = await Wallets.newFileSystemWallet(walletPath);
     console.log(`Wallet path: ${walletPath}`);
 

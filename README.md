@@ -109,16 +109,16 @@ docker exec -it dev bash -c "node client/dist/registerUser.js org1 user1"
 
 ## Initialize the ledger
 ```shell
-docker exec -it dev bash -c "node client/dist/invoke.js org1 user1 org1.medicaldata.hospital initLedger"
+docker exec -it dev bash -c "node client/dist/invoke.js org1 user1 medicaldata.hospital initLedger"
 ```
 ```shell
-docker exec -it dev bash -c "node client/dist/invoke.js org1 user1 org1.medicaldata.patient initLedger"
+docker exec -it dev bash -c "node client/dist/invoke.js org1 user1 medicaldata.patient initLedger"
 ```
 ```shell
-docker exec -it dev bash -c "node client/dist/invoke.js org1 user1 org1.medicaldata.doctor initLedger"
+docker exec -it dev bash -c "node client/dist/invoke.js org1 user1 medicaldata.doctor initLedger"
 ```
 ```shell
-docker exec -it dev bash -c "node client/dist/invoke.js org1 user1 org1.medicaldata.report initLedger"
+docker exec -it dev bash -c "node client/dist/invoke.js org1 user1 medicaldata.report initLedger"
 ```
 
 
@@ -134,49 +134,49 @@ docker exec -it dev bash -c "node client/dist/invoke.js <organization-name> <use
 
 ## Use the Hospital contract
 ```shell
-docker exec -it dev bash -c "node client/dist/query.js org1 user1 org1.medicaldata.hospital getHospitals"
+docker exec -it dev bash -c "node client/dist/query.js org1 user1 medicaldata.hospital getHospitals"
 ```
 ```shell
-docker exec -it dev bash -c "node client/dist/query.js org1 user1 org1.medicaldata.hospital getHospital HOSPITAL_0"
+docker exec -it dev bash -c "node client/dist/query.js org1 user1 medicaldata.hospital getHospital HOSPITAL_0"
 ```
 ```shell
-docker exec -it dev bash -c "node client/dist/invoke.js org1 user1 org1.medicaldata.hospital addHospital HOSPITAL_5 TestHospital5 TestCity1"
+docker exec -it dev bash -c "node client/dist/invoke.js org1 user1 medicaldata.hospital addHospital HOSPITAL_5 TestHospital5 TestCity1"
 ```
 
 ## Use the Patient contract
 ```shell
-docker exec -it dev bash -c "node client/dist/query.js org1 user1 org1.medicaldata.patient getPatients"
+docker exec -it dev bash -c "node client/dist/query.js org1 user1 medicaldata.patient getPatients"
 ```
 ```shell
-docker exec -it dev bash -c "node client/dist/query.js org1 user1 org1.medicaldata.patient getPatient PATIENT_0"
+docker exec -it dev bash -c "node client/dist/query.js org1 user1 medicaldata.patient getPatient PATIENT_0"
 ```
 ```shell
-docker exec -it dev bash -c "node client/dist/invoke.js org1 user1 org1.medicaldata.patient addPatient PATIENT_2 jan.kowalski@email.com 000000000 Jan Kowalski 94021106010 1994-03-11T00:00:00.000Z M Kraków 'Łojasiewicza 11' Kraków 30-348 małopolskie"
+docker exec -it dev bash -c "node client/dist/invoke.js org1 user1 medicaldata.patient addPatient PATIENT_2 jan.kowalski@email.com 000000000 Jan Kowalski 94021106010 1994-03-11T00:00:00.000Z M Kraków 'Łojasiewicza 11' Kraków 30-348 małopolskie"
 ```
 
 ## Use the Doctor contract
 ```shell
-docker exec -it dev bash -c "node client/dist/query.js org1 user1 org1.medicaldata.doctor getDoctors"
+docker exec -it dev bash -c "node client/dist/query.js org1 user1 medicaldata.doctor getDoctors"
 ```
 ```shell
-docker exec -it dev bash -c "node client/dist/query.js org1 user1 org1.medicaldata.doctor getDoctor DOCTOR_0"
+docker exec -it dev bash -c "node client/dist/query.js org1 user1 medicaldata.doctor getDoctor DOCTOR_0"
 ```
 ```shell
-docker exec -it dev bash -c "node client/dist/invoke.js org1 user1 org1.medicaldata.patient addDoctor DOCTOR_1 jan.kowalski@email.com 000000000 Jan Kowalski 94021106010 1994-03-11T00:00:00.000Z M HOSPITAL_0"
+docker exec -it dev bash -c "node client/dist/invoke.js org1 user1 medicaldata.doctor addDoctor DOCTOR_1 jan.kowalski@email.com 000000000 Jan Kowalski 94021106010 1994-03-11T00:00:00.000Z M HOSPITAL_0"
 ```
 ```shell
-docker exec -it dev bash -c "node client/dist/invoke.js org1 user1 org1.medicaldata.patient transferDoctor DOCTOR_1 HOSPITAL_1"
+docker exec -it dev bash -c "node client/dist/invoke.js org1 user1 medicaldata.doctor transferDoctor DOCTOR_1 HOSPITAL_1"
 ```
 
 ## Use the Report contract
 ```shell
-docker exec -it dev bash -c "node client/dist/query.js org1 user1 org1.medicaldata.report getReports"
+docker exec -it dev bash -c "node client/dist/query.js org1 user1 medicaldata.report getReports"
 ```
 ```shell
-docker exec -it dev bash -c "node client/dist/query.js org1 user1 org1.medicaldata.report getReport REPORT_0"
+docker exec -it dev bash -c "node client/dist/query.js org1 user1 medicaldata.report getReport REPORT_0"
 ```
 ```shell
-docker exec -it dev bash -c "node client/dist/invoke.js org1 user1 org1.medicaldata.report addReport REPORT_1 HOSPITAL_0 DOCTOR_0 PATIENT_0 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'"
+docker exec -it dev bash -c "node client/dist/invoke.js org1 user1 medicaldata.report addReport REPORT_1 HOSPITAL_0 DOCTOR_0 PATIENT_0 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'"
 ```
 
 # Remove the network

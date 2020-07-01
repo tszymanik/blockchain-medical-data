@@ -25,7 +25,7 @@ const main = async () => {
       networkConfiguration.certificateAuthorities[`ca.${organizationName}.medicaldata.com`].url;
     const ca = new FabricCAServices(caURL);
 
-    const walletPath = path.join(process.cwd(), 'wallet');
+    const walletPath = path.join(process.cwd(), 'wallet', organizationName);
     const wallet = await Wallets.newFileSystemWallet(walletPath);
     console.log(`Wallet path: ${walletPath}`);
 
