@@ -46,23 +46,19 @@ export class PatientContract extends Contract {
         await context.stub.putPrivateData(
           DATA,
           `PATIENT_${index}`,
-          patient.toBuffer(patient.getData()),
+          patient.toBuffer(),
         );
 
         await context.stub.putPrivateData(
           ANONYMIZED_DATA,
           `PATIENT_${index}`,
-          patient.toBuffer(patient.getAnonymizedData()),
+          Buffer.from(JSON.stringify(patient.getAnonymizedData())),
         );
       }),
     );
   }
 
-  async getPatients(
-    context: Context,
-    startKey: string,
-    endKey: string,
-  ) {
+  async getPatients(context: Context, startKey: string, endKey: string) {
     const patients = [];
 
     for await (const state of context.stub.getPrivateDataByRange(
@@ -79,7 +75,11 @@ export class PatientContract extends Contract {
     return JSON.stringify(patients);
   }
 
-  async getAnonymizedPatients(context: Context, startKey: string, endKey: string) {
+  async getAnonymizedPatients(
+    context: Context,
+    startKey: string,
+    endKey: string,
+  ) {
     const patients = [];
 
     for await (const state of context.stub.getPrivateDataByRange(
@@ -153,13 +153,13 @@ export class PatientContract extends Contract {
     await context.stub.putPrivateData(
       DATA,
       `PATIENT_${key}`,
-      patient.toBuffer(patient.getData()),
+      patient.toBuffer(),
     );
 
     await context.stub.putPrivateData(
       ANONYMIZED_DATA,
       `PATIENT_${key}`,
-      patient.toBuffer(patient.getAnonymizedData()),
+      Buffer.from(JSON.stringify(patient.getAnonymizedData())),
     );
   }
 }

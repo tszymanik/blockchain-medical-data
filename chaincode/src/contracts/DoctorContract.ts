@@ -1,40 +1,40 @@
-import { Context, Contract } from "fabric-contract-api";
-import { IDoctor, Doctor } from "../models/Doctor";
+import { Context, Contract } from 'fabric-contract-api';
+import { IDoctor, Doctor } from '../models/Doctor';
 
 export class DoctorContract extends Contract {
   constructor() {
-    super("medicaldata.doctor");
+    super('medicaldata.doctor');
   }
 
   async initLedger(context: Context) {
     const doctors: Doctor[] = [
       new Doctor(
-        "jan.kowalski@email.com",
-        "000000000",
-        "Jan",
-        "Kowalski",
+        'jan.kowalski@email.com',
+        '000000000',
+        'Jan',
+        'Kowalski',
         94021106010,
         new Date(1994, 2, 11),
-        "M",
-        "HOSPITAL_0"
+        'M',
+        'HOSPITAL_0',
       ),
       new Doctor(
-        "jan.kowalski@email.com",
-        "000000000",
-        "Jan",
-        "Kowalski",
+        'jan.kowalski@email.com',
+        '000000000',
+        'Jan',
+        'Kowalski',
         94021106010,
         new Date(1994, 2, 11),
-        "M",
-        "HOSPITAL_0"
-      )
+        'M',
+        'HOSPITAL_0',
+      ),
     ];
 
     await Promise.all(
       doctors.map(
         async (doctor, index) =>
-          await context.stub.putState(`DOCTOR_${index}`, doctor.toBuffer())
-      )
+          await context.stub.putState(`DOCTOR_${index}`, doctor.toBuffer()),
+      ),
     );
   }
 
@@ -52,7 +52,7 @@ export class DoctorContract extends Contract {
     const doctors = [];
 
     for await (const state of context.stub.getStateByRange(startKey, endKey)) {
-      const value = Buffer.from(state.value).toString("utf8");
+      const value = Buffer.from(state.value).toString('utf8');
       const record: IDoctor = JSON.parse(value);
 
       doctors.push({ Key: state.key, Record: record });
@@ -71,7 +71,7 @@ export class DoctorContract extends Contract {
     personalIdentificationNumber: string,
     dateOfBirth: string,
     gender: string,
-    hospitalId: string
+    hospitalId: string,
   ) {
     await context.stub.putState(
       key,
@@ -83,8 +83,8 @@ export class DoctorContract extends Contract {
         Number.parseInt(personalIdentificationNumber),
         new Date(dateOfBirth),
         gender,
-        hospitalId
-      ).toBuffer()
+        hospitalId,
+      ).toBuffer(),
     );
   }
 
@@ -104,7 +104,7 @@ export class DoctorContract extends Contract {
       record.personalIdentificationNumber,
       record.dateOfBirth,
       record.gender,
-      hospitalId
+      hospitalId,
     );
 
     await context.stub.putState(doctorId, doctor.toBuffer());
