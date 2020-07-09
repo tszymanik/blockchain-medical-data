@@ -24,16 +24,6 @@ export class ReportContract extends Contract {
     );
   }
 
-  async getReport(context: Context, key: string) {
-    const hospitalBytes = await context.stub.getState(key);
-
-    if (!hospitalBytes) {
-      throw new Error(`${key} doesn't exist.`);
-    }
-
-    return hospitalBytes.toString();
-  }
-
   async getReports(context: Context, startKey: string, endKey: string) {
     const reports = [];
 
@@ -45,6 +35,16 @@ export class ReportContract extends Contract {
     }
 
     return JSON.stringify(reports);
+  }
+
+  async getReport(context: Context, key: string) {
+    const hospitalBytes = await context.stub.getState(key);
+
+    if (!hospitalBytes) {
+      throw new Error(`${key} doesn't exist.`);
+    }
+
+    return hospitalBytes.toString();
   }
 
   async addReport(

@@ -52,7 +52,9 @@ export class PatientContract extends Contract {
         await context.stub.putPrivateData(
           ANONYMIZED_DATA,
           `PATIENT_${index}`,
-          Buffer.from(JSON.stringify(patient.getAnonymizedData())),
+          Buffer.from(
+            JSON.stringify(patient.getAnonymizedData())
+          ),
         );
       }),
     );

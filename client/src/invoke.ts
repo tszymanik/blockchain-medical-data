@@ -6,6 +6,13 @@ const organizationName = process.argv[2];
 const userName = process.argv[3];
 const contractName = process.argv[4];
 const transactionName = process.argv[5];
+const transactionArguments: string[] = [];
+
+process.argv.forEach((arg, index) => {
+  if (index > 5) {
+    transactionArguments.push(arg);
+  }
+});
 
 const main = async () => {
   try {
@@ -44,20 +51,15 @@ const main = async () => {
     const network = await gateway.getNetwork('mychannel');
     const contract = network.getContract('medicaldata', contractName);
 
-    const transactionArguments: string[] = [];
-
-    process.argv.forEach((arg, index) => {
-      if (index > 5) {
-        transactionArguments.push(arg);
-      }
-    });
-
     if (transactionArguments) {
-      await contract.submitTransaction(transactionName, ...transactionArguments);
+      await contract.submitTransaction(
+        transactionName,
+        ...transactionArguments
+      );
     } else {
       await contract.submitTransaction(transactionName);
     }
-    
+
     console.log('Transaction has been submitted.');
 
     gateway.disconnect();

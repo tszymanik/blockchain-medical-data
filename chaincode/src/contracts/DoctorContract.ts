@@ -38,16 +38,6 @@ export class DoctorContract extends Contract {
     );
   }
 
-  async getDoctor(context: Context, key: string) {
-    const doctorBytes = await context.stub.getState(key);
-
-    if (!doctorBytes) {
-      throw new Error(`${key} doesn't exist.`);
-    }
-
-    return doctorBytes.toString();
-  }
-
   async getDoctors(context: Context, startKey: string, endKey: string) {
     const doctors = [];
 
@@ -59,6 +49,16 @@ export class DoctorContract extends Contract {
     }
 
     return JSON.stringify(doctors);
+  }
+
+  async getDoctor(context: Context, key: string) {
+    const doctorBytes = await context.stub.getState(key);
+
+    if (!doctorBytes) {
+      throw new Error(`${key} doesn't exist.`);
+    }
+
+    return doctorBytes.toString();
   }
 
   async addDoctor(
@@ -88,11 +88,11 @@ export class DoctorContract extends Contract {
     );
   }
 
-  async transferDoctor(context: Context, doctorId: string, hospitalId: string) {
-    const doctorBytes = await context.stub.getState(doctorId);
+  async transferDoctor(context: Context, doctorKey: string, hospitalKey: string) {
+    const doctorBytes = await context.stub.getState(doctorKey);
 
     if (!doctorBytes) {
-      throw new Error(`${doctorId} doesn't exist.`);
+      throw new Error(`${doctorKey} doesn't exist.`);
     }
 
     const record: IDoctor = JSON.parse(doctorBytes.toString());
@@ -104,9 +104,9 @@ export class DoctorContract extends Contract {
       record.personalIdentificationNumber,
       record.dateOfBirth,
       record.gender,
-      hospitalId,
+      hospitalKey,
     );
 
-    await context.stub.putState(doctorId, doctor.toBuffer());
+    await context.stub.putState(doctorKey, doctor.toBuffer());
   }
 }
