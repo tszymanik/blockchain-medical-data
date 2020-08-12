@@ -50,14 +50,14 @@ export class ReportContract extends Contract {
   async addReport(
     context: Context,
     key: string,
-    hospitalId: string,
-    doctorId: string,
-    patientId: string,
+    hospitalKey: string,
+    doctorKey: string,
+    patientKey: string,
     content: string,
   ) {
     await context.stub.putState(
       key,
-      new Report(hospitalId, doctorId, patientId, content).toBuffer(),
+      new Report(hospitalKey, doctorKey, patientKey, content).toBuffer(),
     );
   }
 }

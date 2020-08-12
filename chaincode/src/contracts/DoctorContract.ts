@@ -71,7 +71,7 @@ export class DoctorContract extends Contract {
     personalIdentificationNumber: string,
     dateOfBirth: string,
     gender: string,
-    hospitalId: string,
+    hospitalKey: string,
   ) {
     await context.stub.putState(
       key,
@@ -83,12 +83,16 @@ export class DoctorContract extends Contract {
         Number.parseInt(personalIdentificationNumber),
         new Date(dateOfBirth),
         gender,
-        hospitalId,
+        hospitalKey,
       ).toBuffer(),
     );
   }
 
-  async transferDoctor(context: Context, doctorKey: string, hospitalKey: string) {
+  async transferDoctor(
+    context: Context,
+    doctorKey: string,
+    hospitalKey: string,
+  ) {
     const doctorBytes = await context.stub.getState(doctorKey);
 
     if (!doctorBytes) {

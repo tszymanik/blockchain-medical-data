@@ -6,7 +6,7 @@ export interface IDoctor {
   personalIdentificationNumber: number;
   dateOfBirth: Date;
   gender: string;
-  hospitalId: string;
+  hospitalKey: string;
 }
 
 export class Doctor implements IDoctor {
@@ -17,7 +17,7 @@ export class Doctor implements IDoctor {
   personalIdentificationNumber: number;
   dateOfBirth: Date;
   gender: string;
-  hospitalId: string;
+  hospitalKey: string;
 
   constructor(
     email: string,
@@ -27,7 +27,7 @@ export class Doctor implements IDoctor {
     personalIdentificationNumber: number,
     dateOfBirth: Date,
     gender: string,
-    hospitalId: string,
+    hospitalKey: string,
   ) {
     this.email = email;
     this.phoneNumer = phoneNumer;
@@ -36,7 +36,7 @@ export class Doctor implements IDoctor {
     this.personalIdentificationNumber = personalIdentificationNumber;
     this.dateOfBirth = dateOfBirth;
     this.gender = gender;
-    this.hospitalId = hospitalId;
+    this.hospitalKey = hospitalKey;
   }
 
   toString() {

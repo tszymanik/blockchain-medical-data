@@ -10,6 +10,8 @@ services:
     tty: true
     volumes:
       - .:/src
+    ports:
+      - "3000:3000"
     networks:
       - basic
     working_dir: /src

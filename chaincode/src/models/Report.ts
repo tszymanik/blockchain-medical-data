@@ -1,20 +1,25 @@
 export interface IReport {
-  hospitalId: string;
-  doctorId: string;
-  patientId: string;
+  hospitalKey: string;
+  doctorKey: string;
+  patientKey: string;
   content: string;
 }
 
 export class Report implements IReport {
-  hospitalId: string;
-  doctorId: string;
-  patientId: string;
+  hospitalKey: string;
+  doctorKey: string;
+  patientKey: string;
   content: string;
 
-  constructor(hospitalId: string, doctorId: string, patientId: string, content: string) {
-    this.hospitalId = hospitalId;
-    this.doctorId = doctorId;
-    this.patientId = patientId;
+  constructor(
+    hospitalKey: string,
+    doctorKey: string,
+    patientKey: string,
+    content: string,
+  ) {
+    this.hospitalKey = hospitalKey;
+    this.doctorKey = doctorKey;
+    this.patientKey = patientKey;
     this.content = content;
   }
 
