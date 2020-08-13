@@ -1,0 +1,22 @@
+@import './variables.scss';
+
+/* .brand {
+  font-weight: bold;
+  font-size: 2rem;
+  text-align: center;
+} */
+
+.header {
+  margin-top: 1rem;
+  margin-bottom: 3rem;
+}
+
+.brand {
+  a {
+    color: $color-regular;
+
+    &:hover {
+      text-decoration: none;
+    }
+  }
+}

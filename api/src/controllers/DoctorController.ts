@@ -65,7 +65,7 @@ doctorController.post('/', async (req, res, next) => {
     personalIdentificationNumber,
     dateOfBirth,
     gender,
-    placeOfBirth,
+    hospitalKey,
   } = req.body;
 
   if (
@@ -79,7 +79,7 @@ doctorController.post('/', async (req, res, next) => {
     personalIdentificationNumber &&
     dateOfBirth &&
     gender &&
-    placeOfBirth
+    hospitalKey
   ) {
     try {
       res.send(
@@ -94,7 +94,7 @@ doctorController.post('/', async (req, res, next) => {
           personalIdentificationNumber,
           dateOfBirth,
           gender,
-          placeOfBirth
+          hospitalKey
         )
       );
     } catch (error) {

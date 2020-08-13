@@ -1,5 +1,6 @@
 declare namespace NodeJS {
   export interface ProcessEnv {
+    API_PORT: string;
     INSURER_ORG: string;
     UNIVERSITY_ORG: string;
     NETWORK_NAME: string;

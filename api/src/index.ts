@@ -25,6 +25,6 @@ app.use('/reports', reportController);
 app.use('/users', userController);
 app.use((req, res, next) => res.sendStatus(404));
 
-app.listen(process.env.PORT, () => {
-  console.log(`App listening at http://localhost:${process.env.PORT}`);
+app.listen(process.env.API_PORT, () => {
+  console.log(`App listening at http://localhost:${process.env.API_PORT}`);
 });

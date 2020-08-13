@@ -1,0 +1,18 @@
+@import '../../variables.scss';
+
+.root {
+  margin-top: 3rem;
+}
+
+.brand {
+  text-align: center;
+  margin-bottom: 2rem;
+
+  a {
+    color: $color-regular;
+
+    &:hover {
+      text-decoration: none;
+    }
+  }
+}

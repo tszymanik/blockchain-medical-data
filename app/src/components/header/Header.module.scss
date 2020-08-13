@@ -1,0 +1,41 @@
+@import '../../variables.scss';
+
+.root {
+  display: flex;
+  align-items: flex-end;
+  background-color: $gray-200;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  margin-bottom: 2rem;
+
+  &.isCentered {
+    justify-content: center;
+    margin-bottom: 0;
+
+    .brand {
+      font-size: 2rem;
+    }
+  }
+}
+
+.brand {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 0;
+
+  a {
+    color: $color-regular;
+
+    &:hover {
+      text-decoration: none;
+    }
+  }
+}
+
+.organizationName {
+  font-size: 1rem;
+  margin-left: 3rem;
+  margin-bottom: 0;
+}
