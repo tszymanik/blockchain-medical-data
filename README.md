@@ -41,6 +41,20 @@ docker exec -it dev bash -c "cd chaincode && npm run build"
 ./install-chaincode.sh
 ```
 
+
+# API
+```shell
+docker exec -it dev bash -c "cd api && npm install"
+```
+```shell
+docker exec -it dev bash -c "cd api && npm run build"
+```
+```shell
+docker exec -it dev bash -c "cd api && npm run setup"
+```
+```shell
+docker exec -it dev bash -c "cd api && npm start"
+```
 # Klient
 
 ## Instalacja klienta

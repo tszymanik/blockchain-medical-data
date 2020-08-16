@@ -3,11 +3,11 @@
 .root {
   display: flex;
   align-items: flex-end;
-  background-color: $gray-200;
   padding-left: 2rem;
   padding-right: 2rem;
   padding-top: 1rem;
   padding-bottom: 1rem;
+  border-bottom: 1px solid $gray-200;
   margin-bottom: 2rem;
 
   &.isCentered {

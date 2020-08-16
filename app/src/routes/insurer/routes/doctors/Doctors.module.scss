@@ -1,33 +1,13 @@
 @import 'variables.scss';
 
-.nav {
-  list-style-type: none;
-  padding: 0;
-  border-right: 1px solid $gray-200;
-  margin: 0;
-}
+.row {
+  cursor: pointer;
 
-.navItem {
-  margin-bottom: 0.25rem;
-
-  > a {
-    display: flex;
-    align-items: center;
-    color: $color-regular;
-    padding-left: 1rem;
-    padding-right: 3rem;
-    padding-top: 0.25rem;
-    padding-bottom: 0.25rem;
-
-    &:hover {
-      text-decoration: none;
-      background-color: $gray-200;
-    }
+  &:hover {
+    background-color: $gray-100
   }
-}
 
-.navIcon {
-  width: 0.625rem;
-  height: auto;
-  margin-right: 0.5rem;
+  &.clicked {
+    background-color: $gray-200;
+  }
 }

@@ -1,0 +1,35 @@
+@import 'variables.scss';
+
+.root {
+  list-style-type: none;
+  padding: 0;
+  border-right: 1px solid $gray-200;
+  margin: 0;
+}
+
+.item {
+  > a {
+    display: flex;
+    align-items: center;
+    color: $color-regular;
+    padding-left: 1rem;
+    padding-right: 3rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+
+    &.active {
+      background-color: $gray-200;
+    }
+
+    &:hover {
+      text-decoration: none;
+      background-color: $gray-200;
+    }
+  }
+}
+
+.icon {
+  width: 0.625rem;
+  height: auto;
+  margin-right: 0.5rem;
+}
