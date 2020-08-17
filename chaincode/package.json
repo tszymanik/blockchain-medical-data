@@ -9,11 +9,12 @@
     "prepublishOnly": "npm run build"
   },
   "dependencies": {
-    "fabric-contract-api": "^2.1.4",
-    "fabric-shim": "^2.1.4"
+    "fabric-contract-api": "^2.2.0",
+    "fabric-shim": "^2.2.0",
+    "moment": "^2.27.0"
   },
   "devDependencies": {
-    "@types/node": "^13.9.2",
-    "typescript": "^3.8.3"
+    "@types/node": "^14.6.0",
+    "typescript": "^3.9.7"
   }
 }

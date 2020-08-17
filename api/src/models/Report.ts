@@ -14,6 +14,20 @@ export const getReports = (
     [startKey, endKey]
   );
 
+export const getAnonymizedReports = (
+  organizationName: string,
+  userName: string,
+  startKey: string,
+  endKey: string
+) =>
+  evaluateTransaction(
+    organizationName,
+    userName,
+    process.env.REPORT_CONTRACT_NAME,
+    'getAnonymizedReports',
+    [startKey, endKey]
+  );
+
 export const getReport = (
   organizationName: string,
   userName: string,
@@ -24,6 +38,19 @@ export const getReport = (
     userName,
     process.env.REPORT_CONTRACT_NAME,
     'getReport',
+    [key]
+  );
+
+export const getAnonymizedReport = (
+  organizationName: string,
+  userName: string,
+  key: string
+) =>
+  evaluateTransaction(
+    organizationName,
+    userName,
+    process.env.REPORT_CONTRACT_NAME,
+    'getAnonymizedReport',
     [key]
   );
 

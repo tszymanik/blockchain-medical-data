@@ -50,11 +50,9 @@ export const addUser = (organizationName: string, userName: string) =>
 
       const adminIdentity = await wallet.get('admin');
       if (!adminIdentity) {
-        console.log(
+        throw new Error(
           'An identity for the admin user "admin" does not exist in the wallet.'
         );
-        console.log('Run the enrollAdmin.js application before retrying.');
-        return;
       }
 
       const provider = wallet
@@ -82,6 +80,26 @@ export const addUser = (organizationName: string, userName: string) =>
       resolve(
         `Successfully registered and enrolled admin user "${userName}" and imported it into the wallet.`
       );
+    } catch (error) {
+      reject(error);
+    }
+  });
+
+export const checkUser = (organizationName: string, userName: string) =>
+  new Promise(async (resolve, reject) => {
+    try {
+      const walletPath = path.join(process.cwd(), 'wallet', organizationName);
+      const wallet = await Wallets.newFileSystemWallet(walletPath);
+      console.log(`Wallet path: ${walletPath}`);
+
+      const userIdentity = await wallet.get(userName);
+      if (!userIdentity) {
+        throw new Error(
+          `An identity for the user "${userName}" does not exist in the wallet.`
+        );
+      }
+
+      resolve(userIdentity);
     } catch (error) {
       reject(error);
     }

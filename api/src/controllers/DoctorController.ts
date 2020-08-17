@@ -1,5 +1,10 @@
 import { Router } from 'express';
-import { addDoctor, getDoctor, getDoctors } from '../models/Doctor';
+import {
+  addDoctor,
+  getDoctor,
+  getDoctors,
+  transferDoctor,
+} from '../models/Doctor';
 
 export const doctorController = Router();
 
@@ -96,6 +101,33 @@ doctorController.post('/', async (req, res, next) => {
           gender,
           hospitalKey
         )
+      );
+    } catch (error) {
+      console.log(error);
+      res.sendStatus(404);
+    }
+  } else {
+    res.sendStatus(400);
+  }
+});
+
+doctorController.patch('/', async (req, res, next) => {
+  const {
+    organizationName,
+    userName,
+    key,
+    hospitalKey,
+  } = req.body;
+
+  if (
+    organizationName &&
+    userName &&
+    key &&
+    hospitalKey
+  ) {
+    try {
+      res.send(
+        await transferDoctor(organizationName, userName, key, hospitalKey)
       );
     } catch (error) {
       console.log(error);

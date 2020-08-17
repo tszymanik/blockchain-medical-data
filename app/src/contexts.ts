@@ -1,6 +1,6 @@
 import React from 'react';
 
 export const UserContext = React.createContext({
-  user: '',
-  setUser: (user: string) => {},
+  userName: '',
+  setUserName: (userName: string) => {},
 });

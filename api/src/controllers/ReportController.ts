@@ -1,5 +1,11 @@
 import { Router } from 'express';
-import { addReport, getReport, getReports } from '../models/Report';
+import {
+  addReport,
+  getReport,
+  getAnonymizedReport,
+  getReports,
+  getAnonymizedReports,
+} from '../models/Report';
 
 export const reportController = Router();
 
@@ -17,11 +23,26 @@ reportController.get('/', async (req, res, next) => {
     typeof endKey === 'string'
   ) {
     try {
-      res.send(
-        (
-          await getReports(organizationName, userName, startKey, endKey)
-        ).toString()
-      );
+      if (organizationName === process.env.INSURER_ORG) {
+        res.send(
+          (
+            await getReports(organizationName, userName, startKey, endKey)
+          ).toString()
+        );
+      } else if (organizationName === process.env.UNIVERSITY_ORG) {
+        res.send(
+          (
+            await getAnonymizedReports(
+              organizationName,
+              userName,
+              startKey,
+              endKey
+            )
+          ).toString()
+        );
+      } else {
+        res.sendStatus(400);
+      }
     } catch (error) {
       console.log(error);
       res.sendStatus(404);
@@ -43,7 +64,17 @@ reportController.get('/:key', async (req, res, next) => {
     key
   ) {
     try {
-      res.send((await getReport(organizationName, userName, key)).toString());
+      if (organizationName === process.env.INSURER_ORG) {
+        res.send((await getReport(organizationName, userName, key)).toString());
+      } else if (organizationName === process.env.UNIVERSITY_ORG) {
+        res.send(
+          (
+            await getAnonymizedReport(organizationName, userName, key)
+          ).toString()
+        );
+      } else {
+        res.sendStatus(400);
+      }
     } catch (error) {
       console.log(error);
       res.sendStatus(404);

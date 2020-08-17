@@ -1,5 +1,6 @@
 import { Context, Contract } from 'fabric-contract-api';
 import { IHospital, Hospital } from '../models/Hospital';
+import { DATA } from '../shared';
 
 export class HospitalContract extends Contract {
   constructor() {
@@ -8,35 +9,37 @@ export class HospitalContract extends Contract {
 
   async initLedger(context: Context) {
     const hospitals: Hospital[] = [
-      new Hospital('TestHospital1', 'TestCity1'),
-      new Hospital('TestHospital2', 'TestCity2'),
-      new Hospital('TestHospital3', 'TestCity1'),
-      new Hospital('TestHospital4', 'TestCity1'),
-      new Hospital('TestHospital5', 'TestCity2'),
+      new Hospital('Szpital Uniwersytecki w Krakowie', 'Kraków'),
+      new Hospital(
+        'Uniwersyteckie Centrum Kliniczne im. prof. K. Gibińskiego Śląskiego Uniwersytetu Medycznego w Katowicach',
+        'Katowice',
+      ),
+      new Hospital(
+        'Samodzielny Publiczny Centralny Szpital Kliniczny w Warszawie',
+        'Warszawa',
+      ),
     ];
 
     await Promise.all(
       hospitals.map(
         async (hospital, index) =>
-          await context.stub.putState(`HOSPITAL_${index}`, hospital.toBuffer()),
+          await context.stub.putPrivateData(
+            DATA,
+            `HOSPITAL_${index}`,
+            hospital.toBuffer(),
+          ),
       ),
     );
-  }
-
-  async getHospital(context: Context, key: string) {
-    const hospitalBytes = await context.stub.getState(key);
-
-    if (!hospitalBytes) {
-      throw new Error(`${key} doesn't exist.`);
-    }
-
-    return hospitalBytes.toString();
   }
 
   async getHospitals(context: Context, startKey: string, endKey: string) {
     const hospitals = [];
 
-    for await (const state of context.stub.getStateByRange(startKey, endKey)) {
+    for await (const state of context.stub.getPrivateDataByRange(
+      DATA,
+      startKey,
+      endKey,
+    )) {
       const value = Buffer.from(state.value).toString('utf8');
       const record: IHospital = JSON.parse(value);
 
@@ -46,7 +49,21 @@ export class HospitalContract extends Contract {
     return JSON.stringify(hospitals);
   }
 
+  async getHospital(context: Context, key: string) {
+    const hospitalBytes = await context.stub.getPrivateData(DATA, key);
+
+    if (!hospitalBytes) {
+      throw new Error(`${key} doesn't exist.`);
+    }
+
+    return hospitalBytes.toString();
+  }
+
   async addHospital(context: Context, key: string, name: string, city: string) {
-    await context.stub.putState(key, new Hospital(name, city).toBuffer());
+    await context.stub.putPrivateData(
+      DATA,
+      key,
+      new Hospital(name, city).toBuffer(),
+    );
   }
 }

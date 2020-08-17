@@ -1,8 +1,7 @@
+import moment from 'moment';
 import { Context, Contract } from 'fabric-contract-api';
 import { IPatient, Patient } from '../models/Patient';
-
-const DATA = 'DATA';
-const ANONYMIZED_DATA = 'ANONYMIZED_DATA';
+import { DATA, ANONYMIZED_DATA } from '../shared';
 
 export class PatientContract extends Contract {
   constructor() {
@@ -12,12 +11,12 @@ export class PatientContract extends Contract {
   async initLedger(context: Context) {
     const patients: Patient[] = [
       new Patient(
-        'jan.kowalski@email.com',
+        'tomasz.nowak@medicaldata.com',
         '000000000',
-        'Jan',
-        'Kowalski',
-        94021106010,
-        new Date(1994, 2, 11),
+        'Tomasz',
+        'Nowak',
+        '90022294174',
+        moment('1990-02-22').toDate(),
         'M',
         'Kraków',
         'Łojasiewicza 11',
@@ -26,12 +25,26 @@ export class PatientContract extends Contract {
         'małopolskie',
       ),
       new Patient(
-        'jan.kowalski@email.com',
+        'emil.kozlowski@medicaldata.com',
         '000000000',
-        'Jan',
-        'Kowalski',
-        94021106010,
-        new Date(1994, 2, 11),
+        'Emil',
+        'Kozłowski',
+        '97011861272',
+        moment('1997-01-18').toDate(),
+        'M',
+        'Kraków',
+        'Łojasiewicza 11',
+        'Kraków',
+        '30-348',
+        'małopolskie',
+      ),
+      new Patient(
+        'agnieszka.kowalska@medicaldata.com',
+        '000000000',
+        'Agnieszka',
+        'Kowalska',
+        '84022164313',
+        moment('1984-02-21').toDate(),
         'M',
         'Kraków',
         'Łojasiewicza 11',
@@ -52,9 +65,7 @@ export class PatientContract extends Contract {
         await context.stub.putPrivateData(
           ANONYMIZED_DATA,
           `PATIENT_${index}`,
-          Buffer.from(
-            JSON.stringify(patient.getAnonymizedData())
-          ),
+          Buffer.from(JSON.stringify(patient.getAnonymizedData())),
         );
       }),
     );
@@ -142,8 +153,8 @@ export class PatientContract extends Contract {
       phoneNumer,
       firstName,
       lastName,
-      Number.parseInt(personalIdentificationNumber),
-      new Date(dateOfBirth),
+      personalIdentificationNumber,
+      moment(dateOfBirth).toDate(),
       gender,
       placeOfBirth,
       address,
@@ -152,15 +163,10 @@ export class PatientContract extends Contract {
       voivodeship,
     );
 
-    await context.stub.putPrivateData(
-      DATA,
-      `PATIENT_${key}`,
-      patient.toBuffer(),
-    );
-
+    await context.stub.putPrivateData(DATA, key, patient.toBuffer());
     await context.stub.putPrivateData(
       ANONYMIZED_DATA,
-      `PATIENT_${key}`,
+      key,
       Buffer.from(JSON.stringify(patient.getAnonymizedData())),
     );
   }

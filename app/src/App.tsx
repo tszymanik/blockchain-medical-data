@@ -1,20 +1,26 @@
 import React, { Component } from 'react';
-import { BrowserRouter as Router, Switch, Route, Link, Redirect } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link,
+  Redirect,
+} from 'react-router-dom';
 import styles from './App.module.scss';
 import HomeRoute from './routes/home/Home.route';
 import InsurerRouter from './routes/insurer/Insurer.router';
-import UniversityRoute from './routes/university/University.route';
+import UniversityRouter from './routes/university/University.router';
 import { UserContext } from 'contexts';
 
 type State = {
-  user: string;
-  setUser: (user: string) => void;
+  userName: string;
+  setUserName: (userName: string) => void;
 };
 
 class App extends Component<any, State> {
   state: State = {
-    user: 'user1',
-    setUser: (user: string) => this.setState({ user }),
+    userName: 'user1',
+    setUserName: (userName: string) => this.setState({ userName }),
   };
 
   render() {
@@ -24,7 +30,7 @@ class App extends Component<any, State> {
           <div>
             <Switch>
               <Route path="/insurer" component={InsurerRouter} />
-              <Route path="/university" component={UniversityRoute} />
+              <Route path="/university" component={UniversityRouter} />
               <Route exact path="/" component={HomeRoute} />
             </Switch>
           </div>

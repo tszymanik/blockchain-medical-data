@@ -4,13 +4,14 @@ import styles from './Header.module.scss';
 
 type Props = {
   organizationName?: string;
+  userName?: string;
   isCentered?: boolean;
 };
 
-const Header = ({ organizationName, isCentered }: Props) => {
+const Header = ({ organizationName, userName, isCentered }: Props) => {
   const rootStyles = [styles.root];
   if (isCentered) {
-    rootStyles.push(styles.isCentered)
+    rootStyles.push(styles.isCentered);
   }
   return (
     <div className={rootStyles.join(' ')}>
@@ -20,6 +21,7 @@ const Header = ({ organizationName, isCentered }: Props) => {
       {organizationName && (
         <p className={styles.organizationName}>{organizationName}</p>
       )}
+      {userName && <p className={styles.userName}>{userName}</p>}
     </div>
   );
 };

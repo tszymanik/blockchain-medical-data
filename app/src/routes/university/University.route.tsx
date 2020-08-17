@@ -1,7 +1,8 @@
 import React from 'react';
+import { Redirect } from 'react-router-dom';
 
 function UniversityRoute() {
-  return <div>UniversityRoute</div>;
+  return <Redirect to="/university/patients" />;
 }
 
 export default UniversityRoute;

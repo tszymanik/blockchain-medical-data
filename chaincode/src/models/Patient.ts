@@ -3,7 +3,7 @@ export interface IPatient {
   phoneNumer: string;
   firstName: string;
   lastName: string;
-  personalIdentificationNumber: number;
+  personalIdentificationNumber: string;
   dateOfBirth: Date;
   gender: string;
   placeOfBirth: string;
@@ -18,7 +18,7 @@ export class Patient implements IPatient {
   phoneNumer: string;
   firstName: string;
   lastName: string;
-  personalIdentificationNumber: number;
+  personalIdentificationNumber: string;
   dateOfBirth: Date;
   gender: string;
   placeOfBirth: string;
@@ -32,7 +32,7 @@ export class Patient implements IPatient {
     phoneNumer: string,
     firstName: string,
     lastName: string,
-    personalIdentificationNumber: number,
+    personalIdentificationNumber: string,
     dateOfBirth: Date,
     gender: string,
     placeOfBirth: string,

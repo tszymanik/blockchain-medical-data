@@ -23,6 +23,13 @@ export class Report implements IReport {
     this.content = content;
   }
 
+  getAnonymizedData() {
+    return {
+      patientKey: this.patientKey,
+      content: this.content,
+    };
+  }
+
   toString() {
     return JSON.stringify(this);
   }

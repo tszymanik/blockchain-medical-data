@@ -55,6 +55,18 @@ docker exec -it dev bash -c "cd api && npm run setup"
 ```shell
 docker exec -it dev bash -c "cd api && npm start"
 ```
+
+# Aplikacja internetowa
+```shell
+cd app
+```
+```shell
+npm install
+```
+```shell
+npm start
+```
+
 # Klient
 
 ## Instalacja klienta

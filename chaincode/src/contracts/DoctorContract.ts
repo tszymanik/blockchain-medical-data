@@ -1,5 +1,7 @@
+import moment from 'moment';
 import { Context, Contract } from 'fabric-contract-api';
 import { IDoctor, Doctor } from '../models/Doctor';
+import { DATA } from '../shared';
 
 export class DoctorContract extends Contract {
   constructor() {
@@ -9,31 +11,45 @@ export class DoctorContract extends Contract {
   async initLedger(context: Context) {
     const doctors: Doctor[] = [
       new Doctor(
-        'jan.kowalski@email.com',
+        'jan.kowalski@medicaldata.com',
         '000000000',
         'Jan',
         'Kowalski',
-        94021106010,
-        new Date(1994, 2, 11),
+        '80022354118',
+        moment('1980-02-23').toDate(),
         'M',
         'HOSPITAL_0',
       ),
       new Doctor(
-        'jan.kowalski@email.com',
+        'stanislaw.michalski@medicaldata.com',
         '000000000',
-        'Jan',
-        'Kowalski',
-        94021106010,
-        new Date(1994, 2, 11),
+        'Stanisław',
+        'Michalski',
+        '75062831756',
+        moment('1975-06-28').toDate(),
         'M',
-        'HOSPITAL_0',
+        'HOSPITAL_2',
+      ),
+      new Doctor(
+        'alicja.zielinska@medicaldata.com',
+        '000000000',
+        'Alicja',
+        'Zielińska',
+        '82070931792',
+        moment('1982-07-09').toDate(),
+        'K',
+        'HOSPITAL_1',
       ),
     ];
 
     await Promise.all(
       doctors.map(
         async (doctor, index) =>
-          await context.stub.putState(`DOCTOR_${index}`, doctor.toBuffer()),
+          await context.stub.putPrivateData(
+            DATA,
+            `DOCTOR_${index}`,
+            doctor.toBuffer(),
+          ),
       ),
     );
   }
@@ -41,7 +57,11 @@ export class DoctorContract extends Contract {
   async getDoctors(context: Context, startKey: string, endKey: string) {
     const doctors = [];
 
-    for await (const state of context.stub.getStateByRange(startKey, endKey)) {
+    for await (const state of context.stub.getPrivateDataByRange(
+      DATA,
+      startKey,
+      endKey,
+    )) {
       const value = Buffer.from(state.value).toString('utf8');
       const record: IDoctor = JSON.parse(value);
 
@@ -52,7 +72,7 @@ export class DoctorContract extends Contract {
   }
 
   async getDoctor(context: Context, key: string) {
-    const doctorBytes = await context.stub.getState(key);
+    const doctorBytes = await context.stub.getPrivateData(DATA, key);
 
     if (!doctorBytes) {
       throw new Error(`${key} doesn't exist.`);
@@ -73,30 +93,27 @@ export class DoctorContract extends Contract {
     gender: string,
     hospitalKey: string,
   ) {
-    await context.stub.putState(
+    await context.stub.putPrivateData(
+      DATA,
       key,
       new Doctor(
         email,
         phoneNumer,
         firstName,
         lastName,
-        Number.parseInt(personalIdentificationNumber),
-        new Date(dateOfBirth),
+        personalIdentificationNumber,
+        moment(dateOfBirth).toDate(),
         gender,
         hospitalKey,
       ).toBuffer(),
     );
   }
 
-  async transferDoctor(
-    context: Context,
-    doctorKey: string,
-    hospitalKey: string,
-  ) {
-    const doctorBytes = await context.stub.getState(doctorKey);
+  async transferDoctor(context: Context, key: string, hospitalKey: string) {
+    const doctorBytes = await context.stub.getPrivateData(DATA, key);
 
     if (!doctorBytes) {
-      throw new Error(`${doctorKey} doesn't exist.`);
+      throw new Error(`${key} doesn't exist.`);
     }
 
     const record: IDoctor = JSON.parse(doctorBytes.toString());
@@ -111,6 +128,6 @@ export class DoctorContract extends Contract {
       hospitalKey,
     );
 
-    await context.stub.putState(doctorKey, doctor.toBuffer());
+    await context.stub.putPrivateData(DATA, key, doctor.toBuffer());
   }
 }

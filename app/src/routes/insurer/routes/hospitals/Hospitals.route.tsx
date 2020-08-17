@@ -1,185 +1,242 @@
-import React, { Component } from 'react';
 import axios from 'axios';
-import { cloneDeep } from 'lodash';
-import { Hospital, HospitalData } from 'types/hospital/Hospital.types';
-import styles from './Doctors.module.scss';
-import { Modal, Button, Form } from 'react-bootstrap';
-import moment from 'moment';
-import Nav from 'components/nav/Nav';
+import Nav from 'components/nav/InsurerNav';
 import { UserContext } from 'contexts';
+import { cloneDeep } from 'lodash';
+import React, { Component } from 'react';
+import {
+  Button,
+  Col,
+  Container,
+  Form,
+  Modal,
+  Row,
+  Table,
+} from 'react-bootstrap';
+import { FormElement, formElement, validate } from 'shared';
+import { HospitalData } from 'types/hospital/Hospital.types';
 
 type State = {
-  hospitals: HospitalData[];
-  modalShown: boolean;
-  newHospital: { [key: string]: string } & Hospital;
+  hospitalsData: HospitalData[];
+  isAddHospitalModalShown: boolean;
+  addHospitalForm: {
+    [key: string]: FormElement;
+    name: FormElement;
+    city: FormElement;
+  };
+  isAddHospitalFormValid: boolean;
+  isAddHospitalFormSubmitted: boolean;
 };
 
 class HospitalsRoute extends Component<any, State> {
   static contextType = UserContext;
 
   state: State = {
-    hospitals: [],
-    modalShown: false,
-    newHospital: {
-      name: '',
-      city: '',
+    hospitalsData: [],
+    isAddHospitalModalShown: false,
+    addHospitalForm: {
+      key: { ...formElement },
+      name: { ...formElement },
+      city: { ...formElement },
     },
+    isAddHospitalFormValid: false,
+    isAddHospitalFormSubmitted: false,
   };
 
   async componentDidMount() {
-    const hospitals: HospitalData[] = (
+    await this.fetchData();
+  }
+
+  fetchData = async () => {
+    const hospitalsData: HospitalData[] = (
       await axios.get('/hospitals', {
         params: {
-          organizationName: 'org1',
-          userName: 'user1',
+          organizationName: process.env.REACT_APP_INSURER_ORG,
+          userName: this.context.userName,
           startKey: 'HOSPITAL_0',
           endKey: 'HOSPITAL_999',
         },
       })
     ).data;
 
-    const newHospital = cloneDeep(this.state.newHospital);
-    newHospital.key = `HOSPITAL_${hospitals.length}`;
+    const addHospitalForm = cloneDeep(this.state.addHospitalForm);
+    addHospitalForm.key.value = `HOSPITAL_${hospitalsData.length}`;
+    addHospitalForm.key.isValid = true;
 
     this.setState({
-      hospitals,
-      newHospital,
-    });
-  }
-
-  onHideModal = () => {
-    this.setState({
-      modalShown: false,
+      hospitalsData,
+      addHospitalForm,
     });
   };
 
-  onChange = (formElement: string) => (
+  onHideAddHospitalModal = () =>
+    this.setState({ isAddHospitalModalShown: false });
+
+  onChangeAddHospitalForm = (formElement: string) => (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
-    const newHospital = cloneDeep(this.state.newHospital);
-    newHospital[formElement] = e.target.value;
+    const addHospitalForm = cloneDeep(this.state.addHospitalForm);
+    addHospitalForm[formElement].value = e.target.value;
+    addHospitalForm[formElement].isValid = validate(e.target.value);
 
-    this.setState({ newHospital });
+    let isFormValid = true;
+
+    Object.keys(addHospitalForm).forEach((key) => {
+      isFormValid = addHospitalForm[key].isValid && isFormValid;
+    });
+
+    this.setState({
+      addHospitalForm,
+      isAddHospitalFormValid: isFormValid,
+    });
   };
 
-  onSubmit = async (e: React.FormEvent<HTMLElement>) => {
+  onSubmitAddHospitalForm = async (e: React.FormEvent<HTMLElement>) => {
     e.preventDefault();
 
+    this.setState({ isAddHospitalFormSubmitted: true });
+
     try {
-      const { newHospital } = this.state;
+      const { addHospitalForm } = this.state;
 
       const data = {
-        organizationName: 'org1',
-        userName: 'user1',
-        key: newHospital.key,
-        name: newHospital.name,
-        city: newHospital.city,
+        organizationName: process.env.REACT_APP_INSURER_ORG,
+        userName: this.context.userName,
+        key: addHospitalForm.key.value,
+        name: addHospitalForm.name.value,
+        city: addHospitalForm.city.value,
       };
 
       await axios.post('/hospitals', data);
 
-      this.onHideModal();
+      const newAddHospitalForm = cloneDeep(addHospitalForm);
+      Object.keys(newAddHospitalForm).forEach((key) => {
+        newAddHospitalForm[key].value = '';
+        newAddHospitalForm[key].isValid = false;
+      });
+
+      await this.fetchData();
+
+      this.setState({
+        addHospitalForm: newAddHospitalForm,
+        isAddHospitalFormSubmitted: false,
+      });
+
+      this.onHideAddHospitalModal();
     } catch (error) {
       console.log(error);
+      this.setState({ isAddHospitalFormSubmitted: false });
     }
   };
 
   render() {
-    const { hospitals, modalShown, newHospital } = this.state;
+    const {
+      hospitalsData,
+      isAddHospitalModalShown,
+      addHospitalForm,
+      isAddHospitalFormValid,
+      isAddHospitalFormSubmitted,
+    } = this.state;
 
     return (
       <>
-        <div className="container">
-          <div className="row">
-            <div className="col-lg-auto d-flex">
+        <Container>
+          <Row>
+            <Col md={3} lg={2} className="d-flex">
               <Nav />
-            </div>
-            <div className="col-lg-10">
+            </Col>
+            <Col md={9} lg={10}>
               <div className="text-right mb-4">
                 <Button
                   variant="primary"
-                  onClick={() => {
-                    this.setState({
-                      modalShown: true,
-                    });
-                  }}
+                  onClick={() =>
+                    this.setState({ isAddHospitalModalShown: true })
+                  }
                 >
-                  Dodaj
+                  Dodaj szpital
                 </Button>
               </div>
-              <div className="table-responsive">
-                <table className="table">
-                  <thead>
-                    <tr>
-                      <th>Klucz</th>
-                      <th>Nazwa</th>
-                      <th>Miasto</th>
+              <Table responsive>
+                <thead>
+                  <tr>
+                    <th>Klucz</th>
+                    <th>Nazwa</th>
+                    <th>Miasto</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {hospitalsData.map((hospitalData) => (
+                    <tr key={hospitalData.Key}>
+                      <td>{hospitalData.Key}</td>
+                      <td>{hospitalData.Record.name}</td>
+                      <td>{hospitalData.Record.city}</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {hospitals.map((hospital) => (
-                      <tr key={hospital.Key}>
-                        <td>{hospital.Key}</td>
-                        <td>{hospital.Record.name}</td>
-                        <td>{hospital.Record.city}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
+                  ))}
+                </tbody>
+              </Table>
+            </Col>
+          </Row>
+        </Container>
 
-        <Modal
-          show={modalShown}
-          onHide={this.onHideModal}
-          animation={false}
-          size="lg"
-        >
-          <Form onSubmit={this.onSubmit}>
-            <Modal.Header closeButton>
-              <Modal.Title>Dodaj szpital</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-              <Form.Group controlId="key">
-                <Form.Label>Klucz</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Klucz"
-                  value={newHospital.key}
-                  onChange={this.onChange('key')}
-                />
-              </Form.Group>
-              <Form.Group controlId="name">
-                <Form.Label>Nazwa</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Nazwa"
-                  value={newHospital.name}
-                  onChange={this.onChange('name')}
-                />
-              </Form.Group>
-              <Form.Group controlId="firstName">
-                <Form.Label>Miasto</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Miasto"
-                  value={newHospital.city}
-                  onChange={this.onChange('city')}
-                />
-              </Form.Group>
-            </Modal.Body>
-            <Modal.Footer>
-              <Button variant="secondary" onClick={this.onHideModal}>
-                Anuluj
-              </Button>
-              <Button variant="primary" type="submit">
-                Wyślij
-              </Button>
-            </Modal.Footer>
-          </Form>
-        </Modal>
+        {isAddHospitalModalShown && (
+          <Modal
+            show={true}
+            onHide={this.onHideAddHospitalModal}
+            animation={false}
+            size="lg"
+          >
+            <Form onSubmit={this.onSubmitAddHospitalForm}>
+              <Modal.Header closeButton>
+                <Modal.Title>Dodaj szpital</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <Form.Group controlId="key">
+                  <Form.Label>Klucz</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Klucz"
+                    value={addHospitalForm.key.value}
+                    onChange={this.onChangeAddHospitalForm('key')}
+                  />
+                </Form.Group>
+                <Form.Group controlId="name">
+                  <Form.Label>Nazwa</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Nazwa"
+                    value={addHospitalForm.name.value}
+                    onChange={this.onChangeAddHospitalForm('name')}
+                  />
+                </Form.Group>
+                <Form.Group controlId="firstName">
+                  <Form.Label>Miasto</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Miasto"
+                    value={addHospitalForm.city.value}
+                    onChange={this.onChangeAddHospitalForm('city')}
+                  />
+                </Form.Group>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button
+                  variant="secondary"
+                  onClick={this.onHideAddHospitalModal}
+                >
+                  Anuluj
+                </Button>
+                <Button
+                  variant="primary"
+                  type="submit"
+                  disabled={
+                    isAddHospitalFormSubmitted || !isAddHospitalFormValid
+                  }
+                >
+                  Wyślij
+                </Button>
+              </Modal.Footer>
+            </Form>
+          </Modal>
+        )}
       </>
     );
   }

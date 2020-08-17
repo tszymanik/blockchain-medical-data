@@ -1,10 +1,14 @@
 @import 'variables.scss';
 
 .root {
+  width: 100%;
   list-style-type: none;
   padding: 0;
-  border-right: 1px solid $gray-200;
   margin: 0;
+
+  @include media-breakpoint-up(md) {
+    border-right: 1px solid $gray-200;
+  }
 }
 
 .item {
@@ -13,7 +17,7 @@
     align-items: center;
     color: $color-regular;
     padding-left: 1rem;
-    padding-right: 3rem;
+    padding-right: 1rem;
     padding-top: 0.5rem;
     padding-bottom: 0.5rem;
 

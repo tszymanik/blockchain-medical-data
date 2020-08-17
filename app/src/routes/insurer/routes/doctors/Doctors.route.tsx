@@ -1,23 +1,46 @@
-import React, { Component } from 'react';
 import axios from 'axios';
-import { cloneDeep } from 'lodash';
-import { Doctor, DoctorData } from 'types/doctor/Doctor.types';
-import styles from './Doctors.module.scss';
-import { Modal, Button, Form, Table } from 'react-bootstrap';
-import moment from 'moment';
-import Nav from 'components/nav/Nav';
+import Nav from 'components/nav/InsurerNav';
 import { UserContext } from 'contexts';
+import { cloneDeep } from 'lodash';
+import moment from 'moment';
+import React, { Component } from 'react';
+import {
+  Button,
+  Col,
+  Container,
+  Form,
+  Modal,
+  Row,
+  Table,
+} from 'react-bootstrap';
+import { FormElement, formElement, validate } from 'shared';
+import { DoctorData } from 'types/doctor/Doctor.types';
+import styles from './Doctors.module.scss';
 
 type State = {
-  doctors: DoctorData[];
+  doctorsData: DoctorData[];
   clickedDoctorKey: string;
   addDoctorModalShown: boolean;
-  addDoctorForm: { [key: string]: string } & Doctor;
+  addDoctorForm: {
+    [key: string]: FormElement;
+    email: FormElement;
+    phoneNumer: FormElement;
+    firstName: FormElement;
+    lastName: FormElement;
+    personalIdentificationNumber: FormElement;
+    dateOfBirth: FormElement;
+    gender: FormElement;
+    hospitalKey: FormElement;
+  };
+  isAddDoctorFormValid: boolean;
+  isAddDoctorFormSubmitted: boolean;
   editHospitalModalShown: boolean;
   editHospitalForm: {
-    [key: string]: string
-    hospitalKey: string;
+    [key: string]: FormElement;
+    hospitalKey: FormElement;
   };
+  isEditHospitalFormValid: boolean;
+  isEditHospitalFormSubmitted: boolean;
 };
 
 class DoctorsRoute extends Component<any, State> {
@@ -25,25 +48,40 @@ class DoctorsRoute extends Component<any, State> {
 
   tableInstance: HTMLTableSectionElement | null = null;
   state: State = {
-    doctors: [],
+    doctorsData: [],
     clickedDoctorKey: '',
     addDoctorModalShown: false,
     addDoctorForm: {
-      email: '',
-      phoneNumer: '',
-      firstName: '',
-      lastName: '',
-      personalIdentificationNumber: '',
-      dateOfBirth: '',
-      gender: '',
-      hospitalKey: '',
+      key: { ...formElement },
+      email: { ...formElement },
+      phoneNumer: { ...formElement },
+      firstName: { ...formElement },
+      lastName: { ...formElement },
+      personalIdentificationNumber: { ...formElement },
+      dateOfBirth: { ...formElement },
+      gender: { ...formElement },
+      hospitalKey: { ...formElement },
     },
+    isAddDoctorFormValid: false,
+    isAddDoctorFormSubmitted: false,
     editHospitalModalShown: false,
     editHospitalForm: {
-      key: '',
-      hospitalKey: '',
+      key: { ...formElement },
+      hospitalKey: { ...formElement },
     },
+    isEditHospitalFormValid: false,
+    isEditHospitalFormSubmitted: false,
   };
+
+  async componentDidMount() {
+    document.addEventListener('click', this.onWindowClick);
+
+    await this.fetchData();
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('click', this.onWindowClick);
+  }
 
   onWindowClick = (e: MouseEvent) => {
     if (this.tableInstance?.contains(e.target as Node)) {
@@ -53,14 +91,12 @@ class DoctorsRoute extends Component<any, State> {
     this.setState({ clickedDoctorKey: '' });
   };
 
-  async componentDidMount() {
-    document.addEventListener('click', this.onWindowClick);
-
-    const doctors: DoctorData[] = (
+  fetchData = async () => {
+    const doctorsData: DoctorData[] = (
       await axios.get('/doctors', {
         params: {
-          organizationName: 'org1',
-          userName: this.context.user,
+          organizationName: process.env.REACT_APP_INSURER_ORG,
+          userName: this.context.userName,
           startKey: 'DOCTOR_0',
           endKey: 'DOCTOR_999',
         },
@@ -68,64 +104,133 @@ class DoctorsRoute extends Component<any, State> {
     ).data;
 
     const addDoctorForm = cloneDeep(this.state.addDoctorForm);
-    addDoctorForm.key = `DOCTOR_${doctors.length}`;
+    addDoctorForm.key.value = `DOCTOR_${doctorsData.length}`;
+    addDoctorForm.key.isValid = true;
 
     this.setState({
-      doctors,
+      doctorsData,
       addDoctorForm,
     });
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener('click', this.onWindowClick);
-  }
-
-  onHideModal = () => {
-    this.setState({ addDoctorModalShown: false });
   };
+
+  onHideAddDoctorModal = () => this.setState({ addDoctorModalShown: false });
+
+  onHideEditHospitalModal = () =>
+    this.setState({ editHospitalModalShown: false });
 
   onChangeAddDoctorForm = (formElement: string) => (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const addDoctorForm = cloneDeep(this.state.addDoctorForm);
-    addDoctorForm[formElement] = e.target.value;
+    addDoctorForm[formElement].value = e.target.value;
+    addDoctorForm[formElement].isValid = validate(e.target.value);
 
-    this.setState({ addDoctorForm });
+    let isFormValid = true;
+
+    Object.keys(addDoctorForm).forEach((key) => {
+      isFormValid = addDoctorForm[key].isValid && isFormValid;
+    });
+
+    this.setState({
+      addDoctorForm,
+      isAddDoctorFormValid: isFormValid,
+    });
   };
 
   onChangeEditHospitalForm = (formElement: string) => (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
     const editHospitalForm = cloneDeep(this.state.editHospitalForm);
-    editHospitalForm[formElement] = e.target.value;
+    editHospitalForm[formElement].value = e.target.value;
+    editHospitalForm[formElement].isValid = validate(e.target.value);
 
-    this.setState({ editHospitalForm });
+    let isFormValid = true;
+
+    Object.keys(editHospitalForm).forEach((key) => {
+      isFormValid = editHospitalForm[key].isValid && isFormValid;
+    });
+
+    this.setState({
+      editHospitalForm,
+      isEditHospitalFormValid: isFormValid,
+    });
   };
 
   onSubmitAddDoctorForm = async (e: React.FormEvent<HTMLElement>) => {
     e.preventDefault();
 
+    this.setState({ isAddDoctorFormSubmitted: true });
+
     try {
       const { addDoctorForm } = this.state;
 
       const data = {
-        organizationName: 'org1',
-        userName: 'user1',
-        key: addDoctorForm.key,
-        email: addDoctorForm.email,
-        phoneNumer: addDoctorForm.phoneNumer,
-        firstName: addDoctorForm.firstName,
-        lastName: addDoctorForm.lastName,
+        organizationName: process.env.REACT_APP_INSURER_ORG,
+        userName: this.context.userName,
+        key: addDoctorForm.key.value,
+        email: addDoctorForm.email.value,
+        phoneNumer: addDoctorForm.phoneNumer.value,
+        firstName: addDoctorForm.firstName.value,
+        lastName: addDoctorForm.lastName.value,
         personalIdentificationNumber:
-          addDoctorForm.personalIdentificationNumber,
-        dateOfBirth: moment(addDoctorForm.dateOfBirth).toDate(),
-        gender: addDoctorForm.gender,
-        hospitalKey: addDoctorForm.hospitalKey,
+          addDoctorForm.personalIdentificationNumber.value,
+        dateOfBirth: moment(addDoctorForm.dateOfBirth.value).toString(),
+        gender: addDoctorForm.gender.value,
+        hospitalKey: addDoctorForm.hospitalKey.value,
       };
 
       await axios.post('/doctors', data);
 
-      this.onHideModal();
+      const newAddDoctorForm = cloneDeep(addDoctorForm);
+      Object.keys(newAddDoctorForm).forEach((key) => {
+        newAddDoctorForm[key].value = '';
+        newAddDoctorForm[key].isValid = false;
+      });
+
+      await this.fetchData();
+
+      this.setState({
+        addDoctorForm: newAddDoctorForm,
+        isAddDoctorFormSubmitted: false,
+      });
+
+      this.onHideAddDoctorModal();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  onSubmitEditHospitalForm = async (e: React.FormEvent<HTMLElement>) => {
+    e.preventDefault();
+
+    this.setState({ isEditHospitalFormSubmitted: true });
+
+    try {
+      const { editHospitalForm } = this.state;
+
+      const data = {
+        organizationName: process.env.REACT_APP_INSURER_ORG,
+        userName: this.context.userName,
+        key: editHospitalForm.key.value,
+        hospitalKey: editHospitalForm.hospitalKey.value,
+      };
+
+      await axios.patch('/doctors', data);
+
+      const newEditHospitalForm = cloneDeep(editHospitalForm);
+      Object.keys(newEditHospitalForm).forEach((key) => {
+        newEditHospitalForm[key].value = '';
+        newEditHospitalForm[key].isValid = false;
+      });
+
+      await this.fetchData();
+
+      this.setState({
+        editHospitalForm: newEditHospitalForm,
+        isEditHospitalFormSubmitted: false,
+      });
+
+      this.onHideEditHospitalModal();
     } catch (error) {
       console.log(error);
     }
@@ -133,22 +238,26 @@ class DoctorsRoute extends Component<any, State> {
 
   render() {
     const {
-      doctors,
+      doctorsData,
       clickedDoctorKey,
       addDoctorModalShown,
       addDoctorForm,
+      isAddDoctorFormValid,
+      isAddDoctorFormSubmitted,
       editHospitalModalShown,
       editHospitalForm,
+      isEditHospitalFormValid,
+      isEditHospitalFormSubmitted,
     } = this.state;
 
     return (
       <>
-        <div className="container">
-          <div className="row">
-            <div className="col-lg-auto d-flex">
+        <Container>
+          <Row>
+            <Col md={3} lg={2} className="d-flex">
               <Nav />
-            </div>
-            <div className="col-lg-10">
+            </Col>
+            <Col md={9} lg={10}>
               <div className="text-right mb-4">
                 <Button
                   variant="primary"
@@ -162,11 +271,18 @@ class DoctorsRoute extends Component<any, State> {
                   disabled={clickedDoctorKey === ''}
                   onClick={() => {
                     const newEditHospitalForm = cloneDeep(editHospitalForm);
-                    newEditHospitalForm.key = clickedDoctorKey;
-                    const clickedDoctor = doctors.find(doctor => doctor.Key === clickedDoctorKey);
+                    newEditHospitalForm.key.value = clickedDoctorKey;
+                    newEditHospitalForm.key.isValid = true;
+                    const clickedDoctor = doctorsData.find(
+                      (doctorData) => doctorData.Key === clickedDoctorKey
+                    );
 
-                    if (clickedDoctor) newEditHospitalForm.hospitalKey = clickedDoctor.Record.hospitalKey;
-                  
+                    if (clickedDoctor) {
+                      newEditHospitalForm.hospitalKey.value =
+                        clickedDoctor.Record.hospitalKey;
+                      newEditHospitalForm.hospitalKey.isValid = true;
+                    }
+
                     this.setState({
                       editHospitalModalShown: true,
                       editHospitalForm: newEditHospitalForm,
@@ -195,84 +311,50 @@ class DoctorsRoute extends Component<any, State> {
                     (this.tableInstance = instance)
                   }
                 >
-                  {doctors.map((doctor) => {
+                  {doctorsData.map((doctorData) => {
                     const rowStyles = [styles.row];
 
-                    if (doctor.Key === clickedDoctorKey) {
+                    if (doctorData.Key === clickedDoctorKey) {
                       rowStyles.push(styles.clicked);
                     }
 
                     return (
                       <tr
-                        key={doctor.Key}
+                        key={doctorData.Key}
                         className={rowStyles.join(' ')}
                         onClick={(e) => {
                           e.preventDefault();
-                          this.setState({ clickedDoctorKey: doctor.Key });
+                          this.setState({ clickedDoctorKey: doctorData.Key });
                         }}
                       >
-                        <td>{doctor.Key}</td>
-                        <td>{doctor.Record.email}</td>
-                        <td>{doctor.Record.firstName}</td>
-                        <td>{doctor.Record.lastName}</td>
-                        <td>{doctor.Record.phoneNumer}</td>
-                        <td>{doctor.Record.personalIdentificationNumber}</td>
+                        <td>{doctorData.Key}</td>
+                        <td>{doctorData.Record.email}</td>
+                        <td>{doctorData.Record.firstName}</td>
+                        <td>{doctorData.Record.lastName}</td>
+                        <td>{doctorData.Record.phoneNumer}</td>
                         <td>
-                          {moment(doctor.Record.dateOfBirth).format(
+                          {doctorData.Record.personalIdentificationNumber}
+                        </td>
+                        <td>
+                          {moment(doctorData.Record.dateOfBirth).format(
                             'DD.MM.YYYY'
                           )}
                         </td>
-                        <td>{doctor.Record.gender}</td>
-                        <td>{doctor.Record.hospitalKey}</td>
+                        <td>{doctorData.Record.gender}</td>
+                        <td>{doctorData.Record.hospitalKey}</td>
                       </tr>
                     );
                   })}
                 </tbody>
               </Table>
-            </div>
-          </div>
-        </div>
-
-        {editHospitalModalShown && (
-          <Modal
-            show={true}
-            onHide={this.onHideModal}
-            animation={false}
-            size="lg"
-          >
-            <Form onSubmit={this.onSubmitAddDoctorForm}>
-              <Modal.Header closeButton>
-                <Modal.Title>
-                  Zmień szpital dla lekarza {editHospitalForm.key}
-                </Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
-                <Form.Group controlId="hospitalKey">
-                  <Form.Label>Szpital</Form.Label>
-                  <Form.Control
-                    type="text"
-                    placeholder="Szpital"
-                    value={editHospitalForm.hospitalKey}
-                    onChange={this.onChangeEditHospitalForm('hospitalKey')}
-                  />
-                </Form.Group>
-              </Modal.Body>
-              <Modal.Footer>
-                <Button variant="secondary" onClick={this.onHideModal}>
-                  Anuluj
-                </Button>
-                <Button variant="primary" type="submit">
-                  Wyślij
-                </Button>
-              </Modal.Footer>
-            </Form>
-          </Modal>
-        )}
+            </Col>
+          </Row>
+        </Container>
 
         {addDoctorModalShown && (
           <Modal
             show={true}
-            onHide={this.onHideModal}
+            onHide={this.onHideAddDoctorModal}
             animation={false}
             size="lg"
           >
@@ -286,7 +368,7 @@ class DoctorsRoute extends Component<any, State> {
                   <Form.Control
                     type="text"
                     placeholder="Klucz"
-                    value={addDoctorForm.key}
+                    value={addDoctorForm.key.value}
                     onChange={this.onChangeAddDoctorForm('key')}
                   />
                 </Form.Group>
@@ -295,7 +377,7 @@ class DoctorsRoute extends Component<any, State> {
                   <Form.Control
                     type="email"
                     placeholder="Email"
-                    value={addDoctorForm.email}
+                    value={addDoctorForm.email.value}
                     onChange={this.onChangeAddDoctorForm('email')}
                   />
                 </Form.Group>
@@ -304,7 +386,7 @@ class DoctorsRoute extends Component<any, State> {
                   <Form.Control
                     type="text"
                     placeholder="Imię"
-                    value={addDoctorForm.firstName}
+                    value={addDoctorForm.firstName.value}
                     onChange={this.onChangeAddDoctorForm('firstName')}
                   />
                 </Form.Group>
@@ -313,7 +395,7 @@ class DoctorsRoute extends Component<any, State> {
                   <Form.Control
                     type="text"
                     placeholder="Nazwisko"
-                    value={addDoctorForm.lastName}
+                    value={addDoctorForm.lastName.value}
                     onChange={this.onChangeAddDoctorForm('lastName')}
                   />
                 </Form.Group>
@@ -322,7 +404,7 @@ class DoctorsRoute extends Component<any, State> {
                   <Form.Control
                     type="text"
                     placeholder="Numer telefonu"
-                    value={addDoctorForm.phoneNumer}
+                    value={addDoctorForm.phoneNumer.value}
                     onChange={this.onChangeAddDoctorForm('phoneNumer')}
                   />
                 </Form.Group>
@@ -331,8 +413,10 @@ class DoctorsRoute extends Component<any, State> {
                   <Form.Control
                     type="text"
                     placeholder="PESEL"
-                    value={addDoctorForm.personalIdentificationNumber}
-                    onChange={this.onChangeAddDoctorForm('personalIdentificationNumber')}
+                    value={addDoctorForm.personalIdentificationNumber.value}
+                    onChange={this.onChangeAddDoctorForm(
+                      'personalIdentificationNumber'
+                    )}
                   />
                 </Form.Group>
                 <Form.Group controlId="dateOfBirth">
@@ -340,7 +424,7 @@ class DoctorsRoute extends Component<any, State> {
                   <Form.Control
                     type="date"
                     placeholder="Data urodzenia"
-                    value={addDoctorForm.dateOfBirth}
+                    value={addDoctorForm.dateOfBirth.value}
                     onChange={this.onChangeAddDoctorForm('dateOfBirth')}
                   />
                 </Form.Group>
@@ -349,7 +433,7 @@ class DoctorsRoute extends Component<any, State> {
                   <Form.Control
                     type="text"
                     placeholder="Płeć"
-                    value={addDoctorForm.gender}
+                    value={addDoctorForm.gender.value}
                     onChange={this.onChangeAddDoctorForm('gender')}
                   />
                 </Form.Group>
@@ -358,16 +442,65 @@ class DoctorsRoute extends Component<any, State> {
                   <Form.Control
                     type="text"
                     placeholder="Szpital"
-                    value={addDoctorForm.hospitalKey}
+                    value={addDoctorForm.hospitalKey.value}
                     onChange={this.onChangeAddDoctorForm('hospitalKey')}
                   />
                 </Form.Group>
               </Modal.Body>
               <Modal.Footer>
-                <Button variant="secondary" onClick={this.onHideModal}>
+                <Button variant="secondary" onClick={this.onHideAddDoctorModal}>
                   Anuluj
                 </Button>
-                <Button variant="primary" type="submit">
+                <Button
+                  variant="primary"
+                  type="submit"
+                  disabled={isAddDoctorFormSubmitted || !isAddDoctorFormValid}
+                >
+                  Wyślij
+                </Button>
+              </Modal.Footer>
+            </Form>
+          </Modal>
+        )}
+
+        {editHospitalModalShown && (
+          <Modal
+            show={true}
+            onHide={this.onHideEditHospitalModal}
+            animation={false}
+            size="lg"
+          >
+            <Form onSubmit={this.onSubmitEditHospitalForm}>
+              <Modal.Header closeButton>
+                <Modal.Title>
+                  Zmień szpital dla lekarza {editHospitalForm.key.value}
+                </Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <Form.Group controlId="hospitalKey">
+                  <Form.Label>Szpital</Form.Label>
+                  <Form.Control
+                    type="text"
+                    placeholder="Szpital"
+                    value={editHospitalForm.hospitalKey.value}
+                    onChange={this.onChangeEditHospitalForm('hospitalKey')}
+                  />
+                </Form.Group>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button
+                  variant="secondary"
+                  onClick={this.onHideEditHospitalModal}
+                >
+                  Anuluj
+                </Button>
+                <Button
+                  variant="primary"
+                  type="submit"
+                  disabled={
+                    isEditHospitalFormSubmitted || !isEditHospitalFormValid
+                  }
+                >
                   Wyślij
                 </Button>
               </Modal.Footer>

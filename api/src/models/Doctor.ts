@@ -35,7 +35,7 @@ export const addDoctor = (
   phoneNumer: string,
   firstName: string,
   lastName: string,
-  personalIdentificationNumber: number,
+  personalIdentificationNumber: string,
   dateOfBirth: Date,
   gender: string,
   hospitalKey: string
@@ -51,9 +51,23 @@ export const addDoctor = (
       phoneNumer,
       firstName,
       lastName,
-      personalIdentificationNumber.toString(),
+      personalIdentificationNumber,
       dateOfBirth.toString(),
       gender,
       hospitalKey,
     ]
+  );
+
+export const transferDoctor = (
+  organizationName: string,
+  userName: string,
+  key: string,
+  hospitalKey: string
+) =>
+  submitTransaction(
+    organizationName,
+    userName,
+    process.env.DOCTOR_CONTRACT_NAME,
+    'transferDoctor',
+    [key, hospitalKey]
   );

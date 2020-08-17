@@ -2,7 +2,7 @@ docker exec -it cliOrg1 bash -c 'peer lifecycle chaincode package medicaldata.ta
 peer lifecycle chaincode install medicaldata.tar.gz &&
 peer lifecycle chaincode queryinstalled > log.txt &&
 peer lifecycle chaincode approveformyorg --channelID mychannel --name medicaldata --version 1 --sequence 1 --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/medicaldata.com/orderers/orderer.medicaldata.com/tls/ca.crt --collections-config /opt/gopath/src/github.com/chaincode/collections_config.json --package-id "$(sed -n "/medicaldata/{s/^Package ID: //; s/, Label:.*$//; p;}" log.txt)" &&
-peer lifecycle chaincode checkcommitreadiness -C mychannel -n medicaldata -v 1 --collections-config /opt/gopath/src/github.com/chaincode/collections_config.json'
+peer lifecycle chaincode checkcommitreadiness -C mychannel -n medicaldata -v 1 --sequence 1 --collections-config /opt/gopath/src/github.com/chaincode/collections_config.json'
 
 sleep 2
 
@@ -10,7 +10,7 @@ docker exec -it cliOrg2 bash -c 'peer lifecycle chaincode package medicaldata.ta
 peer lifecycle chaincode install medicaldata.tar.gz &&
 peer lifecycle chaincode queryinstalled > log.txt &&
 peer lifecycle chaincode approveformyorg --channelID mychannel --name medicaldata --version 1 --sequence 1 --tls --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/medicaldata.com/orderers/orderer.medicaldata.com/tls/ca.crt --collections-config /opt/gopath/src/github.com/chaincode/collections_config.json --package-id "$(sed -n "/medicaldata/{s/^Package ID: //; s/, Label:.*$//; p;}" log.txt)" &&
-peer lifecycle chaincode checkcommitreadiness -C mychannel -n medicaldata -v 1 --collections-config /opt/gopath/src/github.com/chaincode/collections_config.json'
+peer lifecycle chaincode checkcommitreadiness -C mychannel -n medicaldata -v 1 --sequence 1 --collections-config /opt/gopath/src/github.com/chaincode/collections_config.json'
 
 sleep 2
 

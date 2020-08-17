@@ -3,7 +3,7 @@ export interface IDoctor {
   phoneNumer: string;
   firstName: string;
   lastName: string;
-  personalIdentificationNumber: number;
+  personalIdentificationNumber: string;
   dateOfBirth: Date;
   gender: string;
   hospitalKey: string;
@@ -14,7 +14,7 @@ export class Doctor implements IDoctor {
   phoneNumer: string;
   firstName: string;
   lastName: string;
-  personalIdentificationNumber: number;
+  personalIdentificationNumber: string;
   dateOfBirth: Date;
   gender: string;
   hospitalKey: string;
@@ -24,7 +24,7 @@ export class Doctor implements IDoctor {
     phoneNumer: string,
     firstName: string,
     lastName: string,
-    personalIdentificationNumber: number,
+    personalIdentificationNumber: string,
     dateOfBirth: Date,
     gender: string,
     hospitalKey: string,

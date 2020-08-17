@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import styles from './Nav.module.scss';
 
-const Nav = () => {
+function InsurerNav() {
   return (
     <ul className={styles.root}>
       <li className={styles.item}>
@@ -55,6 +55,6 @@ const Nav = () => {
       </li>
     </ul>
   );
-};
+}
 
-export default Nav;
+export default InsurerNav;
