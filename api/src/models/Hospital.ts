@@ -1,4 +1,4 @@
-import { evaluateTransaction, submitTransaction } from '../shared';
+import { query, invoke } from '../shared';
 
 export const getHospitals = (
   organizationName: string,
@@ -6,7 +6,7 @@ export const getHospitals = (
   startKey: string,
   endKey: string
 ) =>
-  evaluateTransaction(
+  query(
     organizationName,
     userName,
     process.env.HOSPITAL_CONTRACT_NAME,
@@ -19,7 +19,7 @@ export const getHospital = (
   userName: string,
   key: string
 ) =>
-  evaluateTransaction(
+  query(
     organizationName,
     userName,
     process.env.HOSPITAL_CONTRACT_NAME,
@@ -34,7 +34,7 @@ export const addHospital = (
   name: string,
   city: string
 ) =>
-  submitTransaction(
+  invoke(
     organizationName,
     userName,
     process.env.HOSPITAL_CONTRACT_NAME,

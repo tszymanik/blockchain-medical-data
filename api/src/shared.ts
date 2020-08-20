@@ -51,7 +51,7 @@ export const getX509Identity = (
   };
 };
 
-export const evaluateTransaction = (
+export const query = (
   organizationName: string,
   userName: string,
   contractName: string,
@@ -97,7 +97,7 @@ export const evaluateTransaction = (
     }
   });
 
-export const submitTransaction = (
+export const invoke = (
   organizationName: string,
   userName: string,
   contractName: string,

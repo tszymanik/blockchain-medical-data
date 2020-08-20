@@ -1,4 +1,4 @@
-import { evaluateTransaction, submitTransaction } from '../shared';
+import { query, invoke } from '../shared';
 
 export const getPatients = (
   organizationName: string,
@@ -6,7 +6,7 @@ export const getPatients = (
   startKey: string,
   endKey: string
 ) =>
-  evaluateTransaction(
+  query(
     organizationName,
     userName,
     process.env.PATIENT_CONTRACT_NAME,
@@ -19,7 +19,7 @@ export const getPatient = (
   userName: string,
   key: string
 ) =>
-  evaluateTransaction(
+  query(
     organizationName,
     userName,
     process.env.PATIENT_CONTRACT_NAME,
@@ -33,7 +33,7 @@ export const getAnonymizedPatients = (
   startKey: string,
   endKey: string
 ) =>
-  evaluateTransaction(
+  query(
     organizationName,
     userName,
     process.env.PATIENT_CONTRACT_NAME,
@@ -46,7 +46,7 @@ export const getAnonymizedPatient = (
   userName: string,
   key: string
 ) =>
-  evaluateTransaction(
+  query(
     organizationName,
     userName,
     process.env.PATIENT_CONTRACT_NAME,
@@ -71,7 +71,7 @@ export const addPatient = (
   zipCode: string,
   voivodeship: string
 ) =>
-  submitTransaction(
+  invoke(
     organizationName,
     userName,
     process.env.PATIENT_CONTRACT_NAME,
