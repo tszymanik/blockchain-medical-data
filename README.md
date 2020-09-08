@@ -59,13 +59,10 @@ docker exec -it dev bash -c "cd api && npm start"
 
 # Aplikacja internetowa
 ```shell
-cd app
+docker exec -it dev bash -c "cd app && npm install"
 ```
 ```shell
-npm install
-```
-```shell
-npm start
+docker exec -it dev bash -c "cd app && npm start"
 ```
 
 
