@@ -27,33 +27,6 @@ export const getPatient = (
     [key]
   );
 
-export const getAnonymizedPatients = (
-  organizationName: string,
-  userName: string,
-  startKey: string,
-  endKey: string
-) =>
-  query(
-    organizationName,
-    userName,
-    process.env.PATIENT_CONTRACT_NAME,
-    'getAnonymizedPatients',
-    [startKey, endKey]
-  );
-
-export const getAnonymizedPatient = (
-  organizationName: string,
-  userName: string,
-  key: string
-) =>
-  query(
-    organizationName,
-    userName,
-    process.env.PATIENT_CONTRACT_NAME,
-    'getAnonymizedPatient',
-    [key]
-  );
-
 export const addPatient = (
   organizationName: string,
   userName: string,
