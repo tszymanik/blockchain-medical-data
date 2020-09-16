@@ -8,12 +8,12 @@ export const initLedger = async (userName: string, contractName) =>
   new Promise(async (resolve, reject) => {
     try {
       const networkConfiguration = getNetworkConfiguration(
-        process.env.INSURER_ORG
+        process.env.INSURER
       );
       const walletPath = path.join(
         process.cwd(),
         'wallet',
-        process.env.INSURER_ORG
+        process.env.INSURER
       );
       const wallet = await Wallets.newFileSystemWallet(walletPath);
 
@@ -48,16 +48,16 @@ export const initLedger = async (userName: string, contractName) =>
 
 const setup = async () => {
   try {
-    await addAdmin(process.env.INSURER_ORG);
-    await addUser(process.env.INSURER_ORG, 'user1');
+    await addAdmin(process.env.INSURER);
+    await addUser(process.env.INSURER, 'user1');
 
     await initLedger('user1', process.env.PATIENT_CONTRACT_NAME);
     await initLedger('user1', process.env.HOSPITAL_CONTRACT_NAME);
     await initLedger('user1', process.env.DOCTOR_CONTRACT_NAME);
     await initLedger('user1', process.env.REPORT_CONTRACT_NAME);
 
-    await addAdmin(process.env.UNIVERSITY_ORG);
-    await addUser(process.env.UNIVERSITY_ORG, 'user1');
+    await addAdmin(process.env.UNIVERSITY);
+    await addUser(process.env.UNIVERSITY, 'user1');
   } catch (error) {
     console.log(error);
   }

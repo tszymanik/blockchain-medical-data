@@ -39,6 +39,19 @@ export class Doctor implements IDoctor {
     this.hospitalKey = hospitalKey;
   }
 
+  getData(): IDoctor {
+    return {
+      email: this.email,
+      phoneNumer: this.phoneNumer,
+      firstName: this.firstName,
+      lastName: this.lastName,
+      personalIdentificationNumber: this.personalIdentificationNumber,
+      dateOfBirth: this.dateOfBirth,
+      gender: this.gender,
+      hospitalKey: this.hospitalKey,
+    };
+  }
+
   toString() {
     return JSON.stringify(this);
   }

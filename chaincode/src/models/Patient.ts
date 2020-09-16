@@ -13,6 +13,11 @@ export interface IPatient {
   voivodeship: string;
 }
 
+export interface IAnonymizedPatient {
+  dateOfBirth: Date;
+  gender: string;
+}
+
 export class Patient implements IPatient {
   email: string;
   phoneNumer: string;
@@ -55,7 +60,24 @@ export class Patient implements IPatient {
     this.voivodeship = voivodeship;
   }
 
-  getAnonymizedData() {
+  getData(): IPatient {
+    return {
+      email: this.email,
+      phoneNumer: this.phoneNumer,
+      firstName: this.firstName,
+      lastName: this.lastName,
+      personalIdentificationNumber: this.personalIdentificationNumber,
+      dateOfBirth: this.dateOfBirth,
+      gender: this.gender,
+      placeOfBirth: this.placeOfBirth,
+      address: this.address,
+      city: this.city,
+      zipCode: this.zipCode,
+      voivodeship: this.voivodeship,
+    };
+  }
+
+  getAnonymizedData(): IAnonymizedPatient {
     return {
       dateOfBirth: this.dateOfBirth,
       gender: this.gender,

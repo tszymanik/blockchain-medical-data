@@ -1,7 +1,7 @@
 import moment from 'moment';
 import { Context, Contract } from 'fabric-contract-api';
 import { IPatient, Patient } from '../models/Patient';
-import { DATA, ANONYMIZED_DATA } from '../shared';
+import { DATA } from '../shared';
 
 export class PatientContract extends Contract {
   constructor() {
@@ -61,12 +61,6 @@ export class PatientContract extends Contract {
           `PATIENT_${index}`,
           patient.toBuffer(),
         );
-
-        await context.stub.putPrivateData(
-          ANONYMIZED_DATA,
-          `PATIENT_${index}`,
-          Buffer.from(JSON.stringify(patient.getAnonymizedData())),
-        );
       }),
     );
   }
@@ -79,31 +73,31 @@ export class PatientContract extends Contract {
       startKey,
       endKey,
     )) {
-      const value = Buffer.from(state.value).toString('utf8');
-      const record: IPatient = JSON.parse(value);
+      const patientData: IPatient = JSON.parse(
+        Buffer.from(state.value).toString('utf8'),
+      );
 
-      patients.push({ Key: state.key, Record: record });
-    }
+      const patient = new Patient(
+        patientData.email,
+        patientData.phoneNumer,
+        patientData.firstName,
+        patientData.lastName,
+        patientData.personalIdentificationNumber,
+        patientData.dateOfBirth,
+        patientData.gender,
+        patientData.placeOfBirth,
+        patientData.address,
+        patientData.city,
+        patientData.zipCode,
+        patientData.voivodeship,
+      );
 
-    return JSON.stringify(patients);
-  }
-
-  async getAnonymizedPatients(
-    context: Context,
-    startKey: string,
-    endKey: string,
-  ) {
-    const patients = [];
-
-    for await (const state of context.stub.getPrivateDataByRange(
-      ANONYMIZED_DATA,
-      startKey,
-      endKey,
-    )) {
-      const value = Buffer.from(state.value).toString('utf8');
-      const record: IPatient = JSON.parse(value);
-
-      patients.push({ Key: state.key, Record: record });
+      const mspId = context.clientIdentity.getMSPID();
+      if (mspId === process.env.INSURER_MSP) {
+        patients.push({ Key: state.key, Record: patient.getData() });
+      } else if (mspId === process.env.UNIVERSITY_MSP) {
+        patients.push({ Key: state.key, Record: patient.getAnonymizedData() });
+      }
     }
 
     return JSON.stringify(patients);
@@ -111,25 +105,32 @@ export class PatientContract extends Contract {
 
   async getPatient(context: Context, key: string) {
     const patientBytes = await context.stub.getPrivateData(DATA, key);
-
     if (!patientBytes) {
       throw new Error(`${key} doesn't exist.`);
     }
 
-    return patientBytes.toString();
-  }
-
-  async getAnonymizedPatient(context: Context, key: string) {
-    const patientBytes = await context.stub.getPrivateData(
-      ANONYMIZED_DATA,
-      key,
+    const patientData: IPatient = JSON.parse(patientBytes.toString());
+    const patient = new Patient(
+      patientData.email,
+      patientData.phoneNumer,
+      patientData.firstName,
+      patientData.lastName,
+      patientData.personalIdentificationNumber,
+      patientData.dateOfBirth,
+      patientData.gender,
+      patientData.placeOfBirth,
+      patientData.address,
+      patientData.city,
+      patientData.zipCode,
+      patientData.voivodeship,
     );
 
-    if (!patientBytes) {
-      throw new Error(`${key} doesn't exist.`);
+    const mspId = context.clientIdentity.getMSPID();
+    if (mspId === process.env.INSURER_MSP) {
+      return JSON.stringify(patient.getData());
     }
 
-    return patientBytes.toString();
+    return JSON.stringify(patient.getAnonymizedData());
   }
 
   async addPatient(
@@ -148,6 +149,13 @@ export class PatientContract extends Contract {
     zipCode: string,
     voivodeship: string,
   ) {
+    const mspId = context.clientIdentity.getMSPID();
+    if (mspId !== process.env.INSURER_MSP) {
+      throw new Error(
+        `${mspId} doesn't have sufficient privileges for this resource.`,
+      );
+    }
+
     const patient = new Patient(
       email,
       phoneNumer,
@@ -164,10 +172,5 @@ export class PatientContract extends Contract {
     );
 
     await context.stub.putPrivateData(DATA, key, patient.toBuffer());
-    await context.stub.putPrivateData(
-      ANONYMIZED_DATA,
-      key,
-      Buffer.from(JSON.stringify(patient.getAnonymizedData())),
-    );
   }
 }

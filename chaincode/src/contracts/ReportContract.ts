@@ -1,6 +1,6 @@
 import { Context, Contract } from 'fabric-contract-api';
 import { IReport, Report } from '../models/Report';
-import { DATA, ANONYMIZED_DATA } from '../shared';
+import { DATA } from '../shared';
 
 export class ReportContract extends Contract {
   constructor() {
@@ -36,12 +36,6 @@ export class ReportContract extends Contract {
           `REPORT_${index}`,
           report.toBuffer(),
         );
-
-        await context.stub.putPrivateData(
-          ANONYMIZED_DATA,
-          `REPORT_${index}`,
-          Buffer.from(JSON.stringify(report.getAnonymizedData())),
-        );
       }),
     );
   }
@@ -54,31 +48,23 @@ export class ReportContract extends Contract {
       startKey,
       endKey,
     )) {
-      const value = Buffer.from(state.value).toString('utf8');
-      const record: IReport = JSON.parse(value);
+      const reportData: IReport = JSON.parse(
+        Buffer.from(state.value).toString('utf8'),
+      );
 
-      reports.push({ Key: state.key, Record: record });
-    }
+      const report = new Report(
+        reportData.hospitalKey,
+        reportData.doctorKey,
+        reportData.patientKey,
+        reportData.content,
+      );
 
-    return JSON.stringify(reports);
-  }
-
-  async getAnonymizedReports(
-    context: Context,
-    startKey: string,
-    endKey: string,
-  ) {
-    const reports = [];
-
-    for await (const state of context.stub.getPrivateDataByRange(
-      ANONYMIZED_DATA,
-      startKey,
-      endKey,
-    )) {
-      const value = Buffer.from(state.value).toString('utf8');
-      const record: IReport = JSON.parse(value);
-
-      reports.push({ Key: state.key, Record: record });
+      const mspId = context.clientIdentity.getMSPID();
+      if (mspId === process.env.INSURER_MSP) {
+        reports.push({ Key: state.key, Record: report.getData() });
+      } else {
+        reports.push({ Key: state.key, Record: report.getAnonymizedData() });
+      }
     }
 
     return JSON.stringify(reports);
@@ -86,25 +72,24 @@ export class ReportContract extends Contract {
 
   async getReport(context: Context, key: string) {
     const hospitalBytes = await context.stub.getPrivateData(DATA, key);
-
     if (!hospitalBytes) {
       throw new Error(`${key} doesn't exist.`);
     }
 
-    return hospitalBytes.toString();
-  }
-
-  async getAnonymizedReport(context: Context, key: string) {
-    const hospitalBytes = await context.stub.getPrivateData(
-      ANONYMIZED_DATA,
-      key,
+    const reportData: IReport = JSON.parse(hospitalBytes.toString());
+    const report = new Report(
+      reportData.hospitalKey,
+      reportData.doctorKey,
+      reportData.patientKey,
+      reportData.content,
     );
 
-    if (!hospitalBytes) {
-      throw new Error(`${key} doesn't exist.`);
+    const mspId = context.clientIdentity.getMSPID();
+    if (mspId === process.env.INSURER_MSP) {
+      return JSON.stringify(report.getData());
     }
 
-    return hospitalBytes.toString();
+    return JSON.stringify(report.getAnonymizedData());
   }
 
   async addReport(
@@ -115,13 +100,15 @@ export class ReportContract extends Contract {
     patientKey: string,
     content: string,
   ) {
+    const mspId = context.clientIdentity.getMSPID();
+    if (mspId !== process.env.INSURER_MSP) {
+      throw new Error(
+        `${mspId} doesn't have sufficient privileges for this resource.`,
+      );
+    }
+
     const report = new Report(hospitalKey, doctorKey, patientKey, content);
 
     await context.stub.putPrivateData(DATA, key, report.toBuffer());
-    await context.stub.putPrivateData(
-      ANONYMIZED_DATA,
-      key,
-      Buffer.from(JSON.stringify(report.getAnonymizedData())),
-    );
   }
 }

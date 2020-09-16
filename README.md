@@ -2,8 +2,11 @@
 Tomasz Szymanik
 
 # Organizacje
-1. Org1 (ubezpieczyciel), kolekcja: DATA
-2. Org2 (uniwersytet), kolekcja: ANONYMIZED_DATA
+1. Org1 (ubezpieczyciel)
+2. Org2 (uniwersytet)
+
+# Kolekcje
+1. DATA
 
 # Sieć
 

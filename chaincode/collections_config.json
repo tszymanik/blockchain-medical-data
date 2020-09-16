@@ -1,14 +1,6 @@
 [
   {
     "name": "DATA",
-    "policy": "OR('Org1MSP.member')",
-    "requiredPeerCount": 0,
-    "maxPeerCount": 3,
-    "blockToLive": 0,
-    "memberOnlyRead": true
-  },
-  {
-    "name": "ANONYMIZED_DATA",
     "policy": "OR('Org1MSP.member', 'Org2MSP.member')",
     "requiredPeerCount": 0,
     "maxPeerCount": 3,

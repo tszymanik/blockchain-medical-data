@@ -23,26 +23,11 @@ patientController.get('/', async (req, res, next) => {
     typeof endKey === 'string'
   ) {
     try {
-      if (organizationName === process.env.INSURER_ORG) {
-        res.send(
-          (
-            await getPatients(organizationName, userName, startKey, endKey)
-          ).toString()
-        );
-      } else if (organizationName === process.env.UNIVERSITY_ORG) {
-        res.send(
-          (
-            await getAnonymizedPatients(
-              organizationName,
-              userName,
-              startKey,
-              endKey
-            )
-          ).toString()
-        );
-      } else {
-        res.sendStatus(400);
-      }
+      res.send(
+        (
+          await getPatients(organizationName, userName, startKey, endKey)
+        ).toString()
+      );
     } catch (error) {
       console.log(error);
       res.sendStatus(404);
@@ -64,19 +49,7 @@ patientController.get('/:key', async (req, res, next) => {
     key
   ) {
     try {
-      if (organizationName === process.env.INSURER_ORG) {
-        res.send(
-          (await getPatient(organizationName, userName, key)).toString()
-        );
-      } else if (organizationName === process.env.UNIVERSITY_ORG) {
-        res.send(
-          (
-            await getAnonymizedPatient(organizationName, userName, key)
-          ).toString()
-        );
-      } else {
-        res.sendStatus(400);
-      }
+      res.send((await getPatient(organizationName, userName, key)).toString());
     } catch (error) {
       console.log(error);
       res.sendStatus(404);

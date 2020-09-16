@@ -33,6 +33,13 @@ export class HospitalContract extends Contract {
   }
 
   async getHospitals(context: Context, startKey: string, endKey: string) {
+    const mspId = context.clientIdentity.getMSPID();
+    if (mspId !== process.env.INSURER_MSP) {
+      throw new Error(
+        `${mspId} doesn't have sufficient privileges for this resource.`,
+      );
+    }
+
     const hospitals = [];
 
     for await (const state of context.stub.getPrivateDataByRange(
@@ -50,6 +57,13 @@ export class HospitalContract extends Contract {
   }
 
   async getHospital(context: Context, key: string) {
+    const mspId = context.clientIdentity.getMSPID();
+    if (mspId !== process.env.INSURER_MSP) {
+      throw new Error(
+        `${mspId} doesn't have sufficient privileges for this resource.`,
+      );
+    }
+
     const hospitalBytes = await context.stub.getPrivateData(DATA, key);
 
     if (!hospitalBytes) {
@@ -60,6 +74,13 @@ export class HospitalContract extends Contract {
   }
 
   async addHospital(context: Context, key: string, name: string, city: string) {
+    const mspId = context.clientIdentity.getMSPID();
+    if (mspId !== process.env.INSURER_MSP) {
+      throw new Error(
+        `${mspId} doesn't have sufficient privileges for this resource.`,
+      );
+    }
+    
     await context.stub.putPrivateData(
       DATA,
       key,

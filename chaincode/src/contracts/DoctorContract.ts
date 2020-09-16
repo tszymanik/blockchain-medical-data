@@ -55,6 +55,13 @@ export class DoctorContract extends Contract {
   }
 
   async getDoctors(context: Context, startKey: string, endKey: string) {
+    const mspId = context.clientIdentity.getMSPID();
+    if (mspId !== process.env.INSURER_MSP) {
+      throw new Error(
+        `${mspId} doesn't have sufficient privileges for this resource.`,
+      );
+    }
+
     const doctors = [];
 
     for await (const state of context.stub.getPrivateDataByRange(
@@ -62,23 +69,53 @@ export class DoctorContract extends Contract {
       startKey,
       endKey,
     )) {
-      const value = Buffer.from(state.value).toString('utf8');
-      const record: IDoctor = JSON.parse(value);
+      const doctorData: IDoctor = JSON.parse(
+        Buffer.from(state.value).toString('utf8'),
+      );
 
-      doctors.push({ Key: state.key, Record: record });
+      const doctor = new Doctor(
+        doctorData.email,
+        doctorData.phoneNumer,
+        doctorData.firstName,
+        doctorData.lastName,
+        doctorData.personalIdentificationNumber,
+        doctorData.dateOfBirth,
+        doctorData.gender,
+        doctorData.hospitalKey,
+      );
+
+      doctors.push({ Key: state.key, Record: doctor.getData() });
     }
 
     return JSON.stringify(doctors);
   }
 
   async getDoctor(context: Context, key: string) {
-    const doctorBytes = await context.stub.getPrivateData(DATA, key);
+    const mspId = context.clientIdentity.getMSPID();
+    if (mspId !== process.env.INSURER_MSP) {
+      throw new Error(
+        `${mspId} doesn't have sufficient privileges for this resource.`,
+      );
+    }
 
+    const doctorBytes = await context.stub.getPrivateData(DATA, key);
     if (!doctorBytes) {
       throw new Error(`${key} doesn't exist.`);
     }
 
-    return doctorBytes.toString();
+    const doctorData: IDoctor = JSON.parse(doctorBytes.toString());
+    const doctor = new Doctor(
+      doctorData.email,
+      doctorData.phoneNumer,
+      doctorData.firstName,
+      doctorData.lastName,
+      doctorData.personalIdentificationNumber,
+      doctorData.dateOfBirth,
+      doctorData.gender,
+      doctorData.hospitalKey,
+    );
+
+    return JSON.stringify(doctor.getData());
   }
 
   async addDoctor(
@@ -93,6 +130,13 @@ export class DoctorContract extends Contract {
     gender: string,
     hospitalKey: string,
   ) {
+    const mspId = context.clientIdentity.getMSPID();
+    if (mspId !== process.env.INSURER_MSP) {
+      throw new Error(
+        `${mspId} doesn't have sufficient privileges for this resource.`,
+      );
+    }
+
     await context.stub.putPrivateData(
       DATA,
       key,
@@ -110,21 +154,27 @@ export class DoctorContract extends Contract {
   }
 
   async transferDoctor(context: Context, key: string, hospitalKey: string) {
-    const doctorBytes = await context.stub.getPrivateData(DATA, key);
+    const mspId = context.clientIdentity.getMSPID();
+    if (mspId !== process.env.INSURER_MSP) {
+      throw new Error(
+        `${mspId} doesn't have sufficient privileges for this resource.`,
+      );
+    }
 
+    const doctorBytes = await context.stub.getPrivateData(DATA, key);
     if (!doctorBytes) {
       throw new Error(`${key} doesn't exist.`);
     }
 
-    const record: IDoctor = JSON.parse(doctorBytes.toString());
+    const doctorData: IDoctor = JSON.parse(doctorBytes.toString());
     const doctor = new Doctor(
-      record.email,
-      record.phoneNumer,
-      record.firstName,
-      record.lastName,
-      record.personalIdentificationNumber,
-      record.dateOfBirth,
-      record.gender,
+      doctorData.email,
+      doctorData.phoneNumer,
+      doctorData.firstName,
+      doctorData.lastName,
+      doctorData.personalIdentificationNumber,
+      doctorData.dateOfBirth,
+      doctorData.gender,
       hospitalKey,
     );
 

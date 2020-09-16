@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { HospitalContract } from './contracts/HospitalContract';
 import { PatientContract } from './contracts/PatientContract';
 import { DoctorContract } from './contracts/DoctorContract';

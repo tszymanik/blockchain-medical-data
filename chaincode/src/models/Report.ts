@@ -5,6 +5,11 @@ export interface IReport {
   content: string;
 }
 
+export interface IAnonymizedReport {
+  patientKey: string;
+  content: string;
+}
+
 export class Report implements IReport {
   hospitalKey: string;
   doctorKey: string;
@@ -23,7 +28,16 @@ export class Report implements IReport {
     this.content = content;
   }
 
-  getAnonymizedData() {
+  getData(): IReport {
+    return {
+      hospitalKey: this.hospitalKey,
+      doctorKey: this.doctorKey,
+      patientKey: this.patientKey,
+      content: this.content,
+    };
+  }
+
+  getAnonymizedData(): IAnonymizedReport {
     return {
       patientKey: this.patientKey,
       content: this.content,
