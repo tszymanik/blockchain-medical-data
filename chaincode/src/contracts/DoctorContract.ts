@@ -9,6 +9,13 @@ export class DoctorContract extends Contract {
   }
 
   async initLedger(context: Context) {
+    const mspId = context.clientIdentity.getMSPID();
+    if (mspId !== process.env.INSURER_MSP) {
+      throw new Error(
+        `${mspId} doesn't have sufficient privileges for this resource.`,
+      );
+    }
+    
     const doctors: Doctor[] = [
       new Doctor(
         'jan.kowalski@medicaldata.com',

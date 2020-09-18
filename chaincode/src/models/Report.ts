@@ -5,10 +5,10 @@ export interface IReport {
   content: string;
 }
 
-export interface IAnonymizedReport {
+export type AnonymizedReport = {
   patientKey: string;
   content: string;
-}
+};
 
 export class Report implements IReport {
   hospitalKey: string;
@@ -37,7 +37,7 @@ export class Report implements IReport {
     };
   }
 
-  getAnonymizedData(): IAnonymizedReport {
+  getAnonymizedData(): AnonymizedReport {
     return {
       patientKey: this.patientKey,
       content: this.content,

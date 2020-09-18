@@ -8,6 +8,13 @@ export class HospitalContract extends Contract {
   }
 
   async initLedger(context: Context) {
+    const mspId = context.clientIdentity.getMSPID();
+    if (mspId !== process.env.INSURER_MSP) {
+      throw new Error(
+        `${mspId} doesn't have sufficient privileges for this resource.`,
+      );
+    }
+    
     const hospitals: Hospital[] = [
       new Hospital('Szpital Uniwersytecki w Krakowie', 'Kraków'),
       new Hospital(

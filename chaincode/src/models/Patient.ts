@@ -13,10 +13,10 @@ export interface IPatient {
   voivodeship: string;
 }
 
-export interface IAnonymizedPatient {
+export type AnonymizedPatient = {
   dateOfBirth: Date;
   gender: string;
-}
+};
 
 export class Patient implements IPatient {
   email: string;
@@ -77,7 +77,7 @@ export class Patient implements IPatient {
     };
   }
 
-  getAnonymizedData(): IAnonymizedPatient {
+  getAnonymizedData(): AnonymizedPatient {
     return {
       dateOfBirth: this.dateOfBirth,
       gender: this.gender,

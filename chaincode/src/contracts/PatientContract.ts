@@ -9,6 +9,13 @@ export class PatientContract extends Contract {
   }
 
   async initLedger(context: Context) {
+    const mspId = context.clientIdentity.getMSPID();
+    if (mspId !== process.env.INSURER_MSP) {
+      throw new Error(
+        `${mspId} doesn't have sufficient privileges for this resource.`,
+      );
+    }
+    
     const patients: Patient[] = [
       new Patient(
         'tomasz.nowak@medicaldata.com',
@@ -94,9 +101,15 @@ export class PatientContract extends Contract {
 
       const mspId = context.clientIdentity.getMSPID();
       if (mspId === process.env.INSURER_MSP) {
-        patients.push({ Key: state.key, Record: patient.getData() });
+        patients.push({
+          Key: state.key,
+          Record: patient.getData(),
+        });
       } else if (mspId === process.env.UNIVERSITY_MSP) {
-        patients.push({ Key: state.key, Record: patient.getAnonymizedData() });
+        patients.push({
+          Key: state.key,
+          Record: patient.getAnonymizedData(),
+        });
       }
     }
 
