@@ -12,7 +12,7 @@
     "dotenv": "^8.2.0",
     "fabric-contract-api": "^2.2.0",
     "fabric-shim": "^2.2.0",
-    "moment": "^2.28.0"
+    "moment": "^2.29.4"
   },
   "devDependencies": {
     "@types/node": "^14.10.2",
